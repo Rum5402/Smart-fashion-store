@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Fashion Store API
 
 ## Running the Project
@@ -90,3 +91,7 @@ curl -X POST "http://YOUR_IP:5125/api/admin/dashboard/products" \
 2. **Authentication:** All protected endpoints require JWT token
 3. **HTTPS:** In production, always use HTTPS
 4. **Firewall:** Make sure to open ports 5125 and 7225 in firewall 
+=======
+# Smart-fashion-store
+the new Smart Display at our clothing store!Now you can explore all our fashion collections easily, without needing to ask anyone or feel uncomfortable.
+>>>>>>> 93f558feb36a7133991429232a2c51059df528b6
