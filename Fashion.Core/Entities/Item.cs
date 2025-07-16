@@ -9,7 +9,18 @@ namespace Fashion.Core.Entities
         [MaxLength(200)]
         public string Name { get; set; } = string.Empty;
         
-        [MaxLength(1000)]
+        /// <summary>
+        /// Optional product code (SKU or barcode)
+        /// </summary>
+        [MaxLength(100)]
+        public string? ProductCode { get; set; }
+        
+        /// <summary>
+        /// Optional product tags/keywords for search and filters (stored as JSON array)
+        /// </summary>
+        public string Tags { get; set; } = "[]";
+        
+        [MaxLength(500)]
         public string? Description { get; set; }
         
         [Required]
@@ -54,7 +65,10 @@ namespace Fashion.Core.Entities
         public bool IsActive { get; set; } = true;
         
         // Foreign keys
-        public int? CategoryId { get; set; }
+        /// <summary>
+        /// Foreign key to Categories table (StoreCategoryId)
+        /// </summary>
+        public int? StoreCategoryId { get; set; }
         
         // Navigation properties
         public virtual Category? CategoryEntity { get; set; }

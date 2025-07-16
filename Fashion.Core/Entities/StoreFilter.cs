@@ -4,28 +4,54 @@ using Fashion.Core.Enums;
 
 namespace Fashion.Core.Entities
 {
+    /// <summary>
+    /// Store filter entity for managing product filters
+    /// </summary>
     public class StoreFilter : BaseEntity
     {
-        [Required]
-        [MaxLength(100)]
+        /// <summary>
+        /// Filter name (required field)
+        /// </summary>
+        [Required(ErrorMessage = "Filter name is required")]
+        [MaxLength(100, ErrorMessage = "Filter name cannot exceed 100 characters")]
         public string Name { get; set; } = string.Empty;
         
-        [MaxLength(500)]
+        /// <summary>
+        /// Filter description (optional)
+        /// </summary>
+        [MaxLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
         public string? Description { get; set; }
         
+        /// <summary>
+        /// Filter options stored as JSON array
+        /// </summary>
         public string Options { get; set; } = "[]"; // JSON array of filter options
         
+        /// <summary>
+        /// Whether the filter is active
+        /// </summary>
         public bool IsActive { get; set; } = true;
         
+        /// <summary>
+        /// Display order for filter sorting
+        /// </summary>
         public int DisplayOrder { get; set; } = 0;
         
-        [Required]
+        /// <summary>
+        /// Filter type (Size, Type, Color, Style, Price, Promotion)
+        /// </summary>
+        [Required(ErrorMessage = "Filter type is required")]
         public FilterType Type { get; set; }
 
-        [Required]
+        /// <summary>
+        /// Selection type (Single or Multi)
+        /// </summary>
+        [Required(ErrorMessage = "Selection type is required")]
         public SelectionType SelectionType { get; set; }
         
-        // Helper methods to work with JSON
+        /// <summary>
+        /// Helper method to get filter options as list
+        /// </summary>
         public List<string> GetOptions()
         {
             if (string.IsNullOrEmpty(Options))
@@ -41,6 +67,9 @@ namespace Fashion.Core.Entities
             }
         }
         
+        /// <summary>
+        /// Helper method to set filter options from list
+        /// </summary>
         public void SetOptions(List<string> options)
         {
             Options = JsonSerializer.Serialize(options);

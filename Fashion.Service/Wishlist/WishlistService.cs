@@ -151,7 +151,7 @@ namespace Fashion.Service.Wishlist
                 IsActive = item.IsActive,
                 CreatedAt = item.CreatedAt,
                 UpdatedAt = item.UpdatedAt,
-                CategoryId = item.CategoryId,
+                StoreCategoryId = item.StoreCategoryId,
                 CategoryEntity = item.CategoryEntity != null ? new CategoryDto
                 {
                     Id = item.CategoryEntity.Id,

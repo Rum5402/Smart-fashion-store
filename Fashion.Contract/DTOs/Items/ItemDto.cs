@@ -27,10 +27,20 @@ namespace Fashion.Contract.DTOs.Items
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
         
+        /// <summary>
+        /// Optional product code (SKU or barcode)
+        /// </summary>
+        public string? ProductCode { get; set; }
+        /// <summary>
+        /// Optional product tags/keywords for search and filters
+        /// </summary>
+        public List<string> Tags { get; set; } = new();
+        
         // Navigation properties
         public CategoryDto? CategoryEntity { get; set; }
         public int? CategoryId { get; set; }
         public string? CategoryName { get; set; }
+        public int? StoreCategoryId { get; set; }
     }
     
     public class CategoryDto

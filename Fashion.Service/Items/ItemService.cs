@@ -98,13 +98,15 @@ namespace Fashion.Service.Items
                 FabricType = request.FabricType,
                 SubCategory = request.SubCategory,
                 BrandName = request.BrandName,
+                ProductCode = request.ProductCode,
+                Tags = JsonSerializer.Serialize(request.Tags ?? new List<string>()),
                 AvailableSizes = JsonSerializer.Serialize(request.AvailableSizes),
                 AvailableColors = JsonSerializer.Serialize(request.AvailableColors),
                 ImageUrls = JsonSerializer.Serialize(request.ImageUrls),
                 IsNewCollection = request.IsNewCollection,
                 IsBestSeller = request.IsBestSeller,
                 IsOnSale = request.IsOnSale,
-                CategoryId = request.CategoryId,
+                StoreCategoryId = request.StoreCategoryId,
                 IsActive = true
             };
 
@@ -139,6 +141,8 @@ namespace Fashion.Service.Items
             item.FabricType = request.FabricType;
             item.SubCategory = request.SubCategory;
             item.BrandName = request.BrandName;
+            item.ProductCode = request.ProductCode;
+            item.Tags = JsonSerializer.Serialize(request.Tags ?? new List<string>());
             item.AvailableSizes = JsonSerializer.Serialize(request.AvailableSizes);
             item.AvailableColors = JsonSerializer.Serialize(request.AvailableColors);
             item.ImageUrls = JsonSerializer.Serialize(request.ImageUrls);
@@ -146,7 +150,7 @@ namespace Fashion.Service.Items
             item.IsBestSeller = request.IsBestSeller;
             item.IsOnSale = request.IsOnSale;
             item.IsActive = request.IsActive;
-            item.CategoryId = request.CategoryId;
+            item.StoreCategoryId = request.StoreCategoryId;
             item.UpdatedAt = DateTime.UtcNow;
 
             // Re-detect primary color if images changed
@@ -195,8 +199,8 @@ namespace Fashion.Service.Items
 
         private static ItemDto MapToDto(Item item, IEnumerable<Category> categories)
         {
-            var category = item.CategoryId.HasValue 
-                ? categories.FirstOrDefault(c => c.Id == item.CategoryId.Value) 
+            var category = item.StoreCategoryId.HasValue 
+                ? categories.FirstOrDefault(c => c.Id == item.StoreCategoryId.Value) 
                 : null;
                 
             return new ItemDto
@@ -213,6 +217,8 @@ namespace Fashion.Service.Items
                 FabricType = item.FabricType,
                 SubCategory = item.SubCategory,
                 BrandName = item.BrandName,
+                ProductCode = item.ProductCode,
+                Tags = string.IsNullOrEmpty(item.Tags) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(item.Tags) ?? new(),
                 PrimaryColor = item.PrimaryColor,
                 AvailableSizes = JsonSerializer.Deserialize<List<string>>(item.AvailableSizes) ?? new(),
                 AvailableColors = JsonSerializer.Deserialize<List<string>>(item.AvailableColors) ?? new(),
@@ -221,7 +227,7 @@ namespace Fashion.Service.Items
                 IsBestSeller = item.IsBestSeller,
                 IsOnSale = item.IsOnSale,
                 IsActive = item.IsActive,
-                CategoryId = item.CategoryId,
+                StoreCategoryId = item.StoreCategoryId,
                 CategoryName = category?.Name,
                 CreatedAt = item.CreatedAt,
                 UpdatedAt = item.UpdatedAt

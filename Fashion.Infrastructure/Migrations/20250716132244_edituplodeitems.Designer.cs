@@ -4,6 +4,7 @@ using Fashion.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fashion.Infrastructure.Migrations
 {
     [DbContext(typeof(FashionDbContext))]
-    partial class FashionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250716132244_edituplodeitems")]
+    partial class edituplodeitems
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -178,6 +181,9 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<int>("Category")
                         .HasColumnType("int");
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -238,9 +244,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<int?>("StoreCategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StoreCategoryId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("Style")
                         .HasColumnType("int");
 
@@ -257,9 +260,9 @@ namespace Fashion.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StoreCategoryId");
+                    b.HasIndex("CategoryId");
 
-                    b.HasIndex("StoreCategoryId1");
+                    b.HasIndex("StoreCategoryId");
 
                     b.ToTable("Items");
                 });
@@ -584,8 +587,7 @@ namespace Fashion.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ImageUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -834,12 +836,12 @@ namespace Fashion.Infrastructure.Migrations
                 {
                     b.HasOne("Fashion.Core.Entities.Category", "CategoryEntity")
                         .WithMany("Items")
-                        .HasForeignKey("StoreCategoryId")
+                        .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Fashion.Core.Entities.StoreCategory", null)
                         .WithMany("Items")
-                        .HasForeignKey("StoreCategoryId1");
+                        .HasForeignKey("StoreCategoryId");
 
                     b.Navigation("CategoryEntity");
                 });

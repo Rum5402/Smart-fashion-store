@@ -59,7 +59,7 @@ namespace Fashion.Infrastructure.Data
             modelBuilder.Entity<Item>()
                 .HasOne(i => i.CategoryEntity)
                 .WithMany(c => c.Items)
-                .HasForeignKey(i => i.CategoryId)
+                .HasForeignKey(i => i.StoreCategoryId)
                 .OnDelete(DeleteBehavior.SetNull);
 
             // Fix cascade delete issue for FittingRoomRequest
