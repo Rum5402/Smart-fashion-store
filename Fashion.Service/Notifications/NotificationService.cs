@@ -1,4 +1,5 @@
 using Fashion.Contract.Interface;
+using Fashion.Contract.DTOs.Notifications;
 using Fashion.Core.Entities;
 using Fashion.Core.Interface;
 using System.Text.Json;

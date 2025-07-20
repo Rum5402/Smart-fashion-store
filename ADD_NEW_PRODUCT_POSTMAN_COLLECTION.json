@@ -1,0 +1,294 @@
+{
+	"info": {
+		"_postman_id": "add-new-product-api",
+		"name": "Add New Product API",
+		"description": "Collection for testing the Add New Product functionality in the Fashion API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Form Options",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/items/form-options",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"items",
+						"form-options"
+					]
+				},
+				"description": "Get all form options for the Add New Product form"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Categories",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/items/form-options/categories",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"items",
+						"form-options",
+						"categories"
+					]
+				},
+				"description": "Get available categories for product creation"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Product Types",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/items/form-options/product-types",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"items",
+						"form-options",
+						"product-types"
+					]
+				},
+				"description": "Get available product types for product creation"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Styles",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/items/form-options/styles",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"items",
+						"form-options",
+						"styles"
+					]
+				},
+				"description": "Get available styles for product creation"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Available Sizes",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/items/form-options/sizes",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"items",
+						"form-options",
+						"sizes"
+					]
+				},
+				"description": "Get available sizes for product creation"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Available Colors",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/items/form-options/colors",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"items",
+						"form-options",
+						"colors"
+					]
+				},
+				"description": "Get available colors for product creation"
+			},
+			"response": []
+		},
+		{
+			"name": "Get Suggested Tags",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/items/form-options/suggested-tags",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"items",
+						"form-options",
+						"suggested-tags"
+					]
+				},
+				"description": "Get suggested tags for product creation"
+			},
+			"response": []
+		},
+		{
+			"name": "Create New Product",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"description": "Manager or Admin token required"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Classic White T-Shirt\",\n  \"description\": \"Premium cotton t-shirt with comfortable fit\",\n  \"price\": 299.99,\n  \"productCode\": \"TSH001\",\n  \"originalPrice\": 399.99,\n  \"category\": 1,\n  \"style\": 1,\n  \"productType\": 1,\n  \"storeActivity\": 1,\n  \"fabricType\": \"Cotton\",\n  \"subCategory\": \"Basic Tees\",\n  \"brandName\": \"Fashion Brand\",\n  \"availableSizes\": [\"S\", \"M\", \"L\", \"XL\"],\n  \"availableColors\": [\"White\", \"Black\", \"Gray\"],\n  \"imageUrls\": [\n    \"https://example.com/images/tshirt-front.jpg\",\n    \"https://example.com/images/tshirt-back.jpg\"\n  ],\n  \"tags\": [\"Casual\", \"Comfortable\", \"Basic\"],\n  \"isNewCollection\": false,\n  \"isBestSeller\": false,\n  \"isOnSale\": true,\n  \"storeCategoryId\": 1\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/items",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"items"
+					]
+				},
+				"description": "Create a new product with all required fields"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Product - Minimal Data",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Simple Product\",\n  \"price\": 199.99,\n  \"category\": 1,\n  \"style\": 1,\n  \"productType\": 1,\n  \"storeActivity\": 1,\n  \"availableSizes\": [\"M\"],\n  \"availableColors\": [\"Black\"],\n  \"imageUrls\": [\"https://example.com/image.jpg\"]\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/items",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"items"
+					]
+				},
+				"description": "Create a product with minimal required data"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Product - Invalid Data",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"\",\n  \"price\": -10,\n  \"category\": 999,\n  \"availableSizes\": [],\n  \"availableColors\": [],\n  \"imageUrls\": []\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/items",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"items"
+					]
+				},
+				"description": "Test validation with invalid data"
+			},
+			"response": []
+		},
+		{
+			"name": "Create Product - Unauthorized",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Test Product\",\n  \"price\": 100,\n  \"category\": 1,\n  \"style\": 1,\n  \"productType\": 1,\n  \"storeActivity\": 1,\n  \"availableSizes\": [\"M\"],\n  \"availableColors\": [\"Black\"],\n  \"imageUrls\": [\"https://example.com/image.jpg\"]\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/items",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"items"
+					]
+				},
+				"description": "Test unauthorized access (no token)"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://localhost:7001",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "your-jwt-token-here",
+			"type": "string",
+			"description": "JWT token for Manager or Admin role"
+		}
+	]
+} 

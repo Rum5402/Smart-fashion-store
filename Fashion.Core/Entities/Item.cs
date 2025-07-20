@@ -71,7 +71,7 @@ namespace Fashion.Core.Entities
         public int? StoreCategoryId { get; set; }
         
         // Navigation properties
-        public virtual Category? CategoryEntity { get; set; }
+        public virtual StoreCategory? CategoryEntity { get; set; }
         public virtual ICollection<User> SavedByUsers { get; set; } = new List<User>();
         public virtual ICollection<FittingRoomRequest> FittingRoomRequests { get; set; } = new List<FittingRoomRequest>();
         public virtual ICollection<Promotion> Promotions { get; set; } = new List<Promotion>();

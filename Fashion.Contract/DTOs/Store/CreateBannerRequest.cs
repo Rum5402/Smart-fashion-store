@@ -15,12 +15,6 @@ namespace Fashion.Contract.DTOs.Store
         public string Name { get; set; } = string.Empty;
         
         /// <summary>
-        /// Banner description (optional)
-        /// </summary>
-        [MaxLength(500, ErrorMessage = "Description cannot exceed 500 characters")]
-        public string? Description { get; set; }
-        
-        /// <summary>
         /// Banner image URL (supports: JPG, PNG, WebP, Max 5MB each)
         /// </summary>
         [Required(ErrorMessage = "Banner image is required")]
@@ -37,11 +31,6 @@ namespace Fashion.Contract.DTOs.Store
         public string? LinkUrl { get; set; }
         
         /// <summary>
-        /// Display order for banner sorting
-        /// </summary>
-        public int DisplayOrder { get; set; } = 0;
-        
-        /// <summary>
         /// Start date for banner display (optional)
         /// </summary>
         public DateTime? StartDate { get; set; }
@@ -50,5 +39,10 @@ namespace Fashion.Contract.DTOs.Store
         /// End date for banner display (optional)
         /// </summary>
         public DateTime? EndDate { get; set; }
+        
+        /// <summary>
+        /// Display order for sorting banners
+        /// </summary>
+        public int DisplayOrder { get; set; } = 0;
     }
 } 

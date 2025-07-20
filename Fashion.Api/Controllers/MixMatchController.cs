@@ -1,84 +1,224 @@
+using Fashion.Api.Filters;
 using Fashion.Contract.DTOs.Items;
-using Fashion.Core.Entities;
-using Fashion.Infrastructure.Data;
+using Fashion.Service.Items;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Fashion.Api.Controllers
 {
+    /// <summary>
+    /// Controller for Mix & Match functionality
+    /// </summary>
     [ApiController]
-    [Route("api/mix-match")]
-    [Authorize]
+    [Route("api/[controller]")]
     public class MixMatchController : ControllerBase
     {
-        private readonly FashionDbContext _context;
+        private readonly IItemService _itemService;
 
-        public MixMatchController(FashionDbContext context)
+        public MixMatchController(IItemService itemService)
         {
-            _context = context;
+            _itemService = itemService;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<List<ItemDto>>> GetMixMatch([FromBody] MixMatchRequest request)
+        /// <summary>
+        /// Get mix and match suggestions based on a base item
+        /// </summary>
+        [HttpGet("suggestions/{itemId}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetMixMatchSuggestions(int itemId)
         {
-            var baseItem = await _context.Items
-                .FirstOrDefaultAsync(i => i.Id == request.ItemId && i.IsActive && !i.IsDeleted);
-
-            if (baseItem == null)
-                return NotFound("Item not found");
-
-            var mixMatchItems = await _context.Items
-                .Include(i => i.CategoryEntity)
-                .Where(i => i.Id != request.ItemId && 
-                           i.IsActive && 
-                           !i.IsDeleted &&
-                           i.Category == baseItem.Category &&
-                           i.Style != baseItem.Style)
-                .OrderByDescending(i => i.IsNewCollection)
-                .ThenByDescending(i => i.IsBestSeller)
-                .Take(5)
-                .ToListAsync();
-
-            var result = mixMatchItems.Select(MapToItemDto).ToList();
-            return Ok(result);
-        }
-
-        private static ItemDto MapToItemDto(Item item)
-        {
-            return new ItemDto
+            try
             {
-                Id = item.Id,
-                Name = item.Name,
-                Description = item.Description,
-                Price = item.Price,
-                OriginalPrice = item.OriginalPrice,
-                Category = item.Category,
-                Style = item.Style,
-                FabricType = item.FabricType,
-                SubCategory = item.SubCategory,
-                AvailableSizes = System.Text.Json.JsonSerializer.Deserialize<List<string>>(item.AvailableSizes) ?? new(),
-                AvailableColors = System.Text.Json.JsonSerializer.Deserialize<List<string>>(item.AvailableColors) ?? new(),
-                ImageUrls = System.Text.Json.JsonSerializer.Deserialize<List<string>>(item.ImageUrls) ?? new(),
-                IsNewCollection = item.IsNewCollection,
-                IsBestSeller = item.IsBestSeller,
-                IsOnSale = item.IsOnSale,
-                IsActive = item.IsActive,
-                CreatedAt = item.CreatedAt,
-                UpdatedAt = item.UpdatedAt,
-                CategoryEntity = item.CategoryEntity != null ? new CategoryDto
-                {
-                    Id = item.CategoryEntity.Id,
-                    Name = item.CategoryEntity.Name,
-                    Description = item.CategoryEntity.Description,
-                    ImageUrl = item.CategoryEntity.ImageUrl
-                } : null
-            };
-        }
-    }
+                var baseItem = await _itemService.GetItemByIdAsync(itemId);
+                if (baseItem == null)
+                    return NotFound(new { success = false, message = "Base item not found" });
 
-    public class MixMatchRequest
-    {
-        public int ItemId { get; set; }
+                var suggestions = await _itemService.GetMixMatchSuggestionsAsync(itemId);
+                
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = "Mix & Match suggestions retrieved successfully",
+                    data = new
+                    {
+                        baseItem,
+                        suggestions
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving mix & match suggestions", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get mix and match outfits by category
+        /// </summary>
+        [HttpGet("outfits/{category}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetMixMatchOutfits(string category)
+        {
+            try
+            {
+                var outfits = await _itemService.GetMixMatchOutfitsAsync(category);
+                
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = $"Mix & Match outfits for {category} retrieved successfully",
+                    data = outfits
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving mix & match outfits", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get mix and match outfits by style
+        /// </summary>
+        [HttpGet("outfits/style/{style}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetMixMatchOutfitsByStyle(string style)
+        {
+            try
+            {
+                var outfits = await _itemService.GetMixMatchOutfitsByStyleAsync(style);
+                
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = $"Mix & Match outfits with style {style} retrieved successfully",
+                    data = outfits
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving mix & match outfits by style", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get mix and match outfits by occasion
+        /// </summary>
+        [HttpGet("outfits/occasion/{occasion}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetMixMatchOutfitsByOccasion(string occasion)
+        {
+            try
+            {
+                var outfits = await _itemService.GetMixMatchOutfitsByOccasionAsync(occasion);
+                
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = $"Mix & Match outfits for {occasion} occasion retrieved successfully",
+                    data = outfits
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving mix & match outfits by occasion", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get trending mix and match combinations
+        /// </summary>
+        [HttpGet("trending")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetTrendingMixMatch()
+        {
+            try
+            {
+                var trendingOutfits = await _itemService.GetTrendingMixMatchAsync();
+                
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = "Trending Mix & Match combinations retrieved successfully",
+                    data = trendingOutfits
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving trending mix & match combinations", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get personalized mix and match recommendations
+        /// </summary>
+        [HttpGet("recommendations")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPersonalizedMixMatchRecommendations([FromQuery] string? userPreferences = null)
+        {
+            try
+            {
+                var recommendations = await _itemService.GetPersonalizedMixMatchRecommendationsAsync(userPreferences);
+                
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = "Personalized Mix & Match recommendations retrieved successfully",
+                    data = recommendations
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving personalized mix & match recommendations", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Save a mix and match combination
+        /// </summary>
+        [HttpPost("save-combination")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SaveMixMatchCombination([FromBody] SaveMixMatchRequest request)
+        {
+            try
+            {
+                var savedCombination = await _itemService.SaveMixMatchCombinationAsync(request);
+                
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = "Mix & Match combination saved successfully",
+                    data = savedCombination
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error saving mix & match combination", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get saved mix and match combinations
+        /// </summary>
+        [HttpGet("saved-combinations")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetSavedMixMatchCombinations()
+        {
+            try
+            {
+                var savedCombinations = await _itemService.GetSavedMixMatchCombinationsAsync();
+                
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = "Saved Mix & Match combinations retrieved successfully",
+                    data = savedCombinations
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving saved mix & match combinations", details = ex.Message });
+            }
+        }
     }
 } 

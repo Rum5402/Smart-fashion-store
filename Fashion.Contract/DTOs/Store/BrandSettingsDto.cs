@@ -31,44 +31,9 @@ namespace Fashion.Contract.DTOs.Store
         public string? PrimaryColor { get; set; }
         
         /// <summary>
-        /// Secondary brand color (hex format: #RRGGBB)
-        /// </summary>
-        public string? SecondaryColor { get; set; }
-        
-        /// <summary>
-        /// Accent brand color (hex format: #RRGGBB)
-        /// </summary>
-        public string? AccentColor { get; set; }
-        
-        /// <summary>
         /// Whether the brand settings are active
         /// </summary>
         public bool IsActive { get; set; }
-        
-        /// <summary>
-        /// About text for the store
-        /// </summary>
-        public string? AboutText { get; set; }
-        
-        /// <summary>
-        /// Contact email address
-        /// </summary>
-        public string? ContactEmail { get; set; }
-        
-        /// <summary>
-        /// Contact phone number
-        /// </summary>
-        public string? ContactPhone { get; set; }
-        
-        /// <summary>
-        /// Store website URL
-        /// </summary>
-        public string? WebsiteUrl { get; set; }
-        
-        /// <summary>
-        /// Social media links (JSON format)
-        /// </summary>
-        public string? SocialMediaLinks { get; set; }
         
         /// <summary>
         /// When the brand settings were created

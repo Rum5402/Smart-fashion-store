@@ -40,6 +40,11 @@ namespace Fashion.Infrastructure.Repositories
             return await _dbContext.Set<T>().FindAsync(id);
         }
 
+        public async Task<T> GetByIdWithTrackingAsync(int id)
+        {
+            return await _dbContext.Set<T>().FirstOrDefaultAsync(e => e.Id == id);
+        }
+
 
         public Task UpdateAsync(T entity)
         {

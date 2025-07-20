@@ -40,7 +40,7 @@ namespace Fashion.Service.Authentications
             }
             else
             {
-                // Update existing user to Explore role
+                // Update existing user to Explore role with new data
                 user.Name = request.Name;
                 user.Role = UserRole.Explore;
                 user.UpdatedAt = DateTime.UtcNow;
@@ -53,9 +53,7 @@ namespace Fashion.Service.Authentications
 
             return new LoginResponse
             {
-                Success = true,
                 Token = token,
-                Message = "Explore mode activated successfully",
                 User = new UserDto
                 {
                     Id = user.Id,
@@ -112,9 +110,7 @@ namespace Fashion.Service.Authentications
 
             return new LoginResponse
             {
-                Success = true,
                 Token = token,
-                Message = "Guest login successful",
                 User = new UserDto
                 {
                     Id = user.Id,
@@ -139,8 +135,8 @@ namespace Fashion.Service.Authentications
             {
                 return new LoginResponse
                 {
-                    Success = false,
-                    Message = "User not found. Please login as guest first."
+                    Token = null,
+                    User = null
                 };
             }
 
@@ -165,9 +161,7 @@ namespace Fashion.Service.Authentications
 
             return new LoginResponse
             {
-                Success = true,
                 Token = token,
-                Message = "Profile saved successfully. You now have a permanent account.",
                 User = new UserDto
                 {
                     Id = user.Id,
@@ -187,18 +181,17 @@ namespace Fashion.Service.Authentications
 
         public async Task<LoginResponse> ManagerLoginAsync(ManagerLoginRequest request)
         {
-            // Check if manager exists with phone number and ID
+            // Check if manager exists with phone number
             var manager = await _context.Managers
                 .FirstOrDefaultAsync(m => m.PhoneNumber == request.PhoneNumber && 
-                                        m.ManagerId == request.ManagerId && 
                                         !m.IsDeleted);
 
             if (manager == null)
             {
                 return new LoginResponse
                 {
-                    Success = false,
-                    Message = "Manager not found. Please check your phone number and ID."
+                    Token = null,
+                    Manager = null
                 };
             }
 
@@ -212,9 +205,7 @@ namespace Fashion.Service.Authentications
 
             return new LoginResponse
             {
-                Success = true,
                 Token = token,
-                Message = "Manager login successful",
                 Manager = new ManagerDto
                 {
                     Id = manager.Id,
@@ -235,21 +226,8 @@ namespace Fashion.Service.Authentications
             {
                 return new LoginResponse
                 {
-                    Success = false,
-                    Message = "Manager with this phone number already exists"
-                };
-            }
-
-            // Check if manager ID already exists
-            var existingManagerId = await _context.Managers
-                .FirstOrDefaultAsync(m => m.ManagerId == request.ManagerId && !m.IsDeleted);
-
-            if (existingManagerId != null)
-            {
-                return new LoginResponse
-                {
-                    Success = false,
-                    Message = "Manager with this ID already exists"
+                    Token = null,
+                    Manager = null
                 };
             }
 
@@ -262,29 +240,28 @@ namespace Fashion.Service.Authentications
                 StoreName = request.StoreName,
                 StoreDescription = request.StoreDescription,
                 StoreAddress = request.StoreAddress,
-                ManagerId = request.ManagerId,
-                Notes = request.Notes,
-                CreatedAt = DateTime.UtcNow
+                Notes = request.Notes
             };
 
             _context.Managers.Add(manager);
             await _context.SaveChangesAsync();
 
+            // Generate JWT token
+            var token = _jwtService.GenerateToken(manager.Id, manager.PhoneNumber, "Manager");
+
             return new LoginResponse
             {
-                Success = true,
-                Token = null, // لا يتم إعطاء token لأن هذا لإنشاء المدير فقط
-                Message = "Manager created successfully",
+                Token = token,
                 Manager = new ManagerDto
                 {
                     Id = manager.Id,
                     Name = manager.Name,
                     PhoneNumber = manager.PhoneNumber,
+                    Role = "Manager",
                     Email = manager.Email,
                     StoreName = manager.StoreName,
                     StoreDescription = manager.StoreDescription,
                     StoreAddress = manager.StoreAddress,
-                    ManagerId = manager.ManagerId,
                     Notes = manager.Notes,
                     CreatedAt = manager.CreatedAt
                 }

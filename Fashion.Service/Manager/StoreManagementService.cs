@@ -53,7 +53,7 @@ namespace Fashion.Service.Admin
                     }
                 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new StoreActivityResponse
                 {
@@ -103,7 +103,7 @@ namespace Fashion.Service.Admin
                     }
                 };
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return new StoreActivityResponse
                 {
@@ -114,7 +114,7 @@ namespace Fashion.Service.Admin
             }
         }
 
-        public async Task<StoreActivityResponse> GetAvailableActivitiesAsync()
+        public Task<StoreActivityResponse> GetAvailableActivitiesAsync()
         {
             var activities = new List<string>
             {
@@ -123,7 +123,7 @@ namespace Fashion.Service.Admin
                 "Kids"
             };
 
-            return new StoreActivityResponse
+            return Task.FromResult(new StoreActivityResponse
             {
                 Success = true,
                 Message = "تم جلب الأنشطة المتاحة بنجاح",
@@ -131,10 +131,10 @@ namespace Fashion.Service.Admin
                 {
                     CurrentActivities = activities
                 }
-            };
+            });
         }
 
-        public async Task<StoreActivityResponse> GetAvailableProductTypesAsync()
+        public Task<StoreActivityResponse> GetAvailableProductTypesAsync()
         {
             var productTypes = new List<string>
             {
@@ -149,7 +149,7 @@ namespace Fashion.Service.Admin
                 "Jewelry"
             };
 
-            return new StoreActivityResponse
+            return Task.FromResult(new StoreActivityResponse
             {
                 Success = true,
                 Message = "تم جلب أنواع المنتجات المتاحة بنجاح",
@@ -157,10 +157,10 @@ namespace Fashion.Service.Admin
                 {
                     CurrentActivities = productTypes
                 }
-            };
+            });
         }
 
-        public async Task<StoreActivityResponse> GetAvailableProductStylesAsync()
+        public Task<StoreActivityResponse> GetAvailableProductStylesAsync()
         {
             var productStyles = new List<string>
             {
@@ -175,7 +175,7 @@ namespace Fashion.Service.Admin
                 "Bohemian"
             };
 
-            return new StoreActivityResponse
+            return Task.FromResult(new StoreActivityResponse
             {
                 Success = true,
                 Message = "تم جلب أنماط المنتجات المتاحة بنجاح",
@@ -183,7 +183,7 @@ namespace Fashion.Service.Admin
                 {
                     CurrentActivities = productStyles
                 }
-            };
+            });
         }
     }
 } 

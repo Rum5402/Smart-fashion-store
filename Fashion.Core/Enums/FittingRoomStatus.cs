@@ -2,9 +2,8 @@ namespace Fashion.Core.Enums
 {
     public enum FittingRoomStatus
     {
-        Pending = 1,
-        InRoom = 2,
-        Completed = 3,
-        Cancelled = 4
+        NewRequest = 1,    // Customer requested fitting room
+        Completed = 2,     // Manager responded to customer request
+        Cancelled = 3      // Request was cancelled
     }
 } 

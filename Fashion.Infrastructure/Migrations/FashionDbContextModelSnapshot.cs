@@ -59,43 +59,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("Fashion.Core.Entities.FittingRoom", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CurrentUser")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("IsAvailable")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("ReservedUntil")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("RoomNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FittingRoom");
-                });
-
             modelBuilder.Entity("Fashion.Core.Entities.FittingRoomRequest", b =>
                 {
                     b.Property<int>("Id")
@@ -104,20 +67,14 @@ namespace Fashion.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("AssignedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("AssignedFittingRoomId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("ExpectedEndTime")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("ExpectedStartTime")
-                        .HasColumnType("datetime2");
+                    b.Property<int?>("DeletedByStaffId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("HandledAt")
                         .HasColumnType("datetime2");
@@ -146,7 +103,7 @@ namespace Fashion.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssignedFittingRoomId");
+                    b.HasIndex("HandledByStaffId");
 
                     b.HasIndex("ItemId");
 
@@ -176,6 +133,9 @@ namespace Fashion.Infrastructure.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
@@ -238,9 +198,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<int?>("StoreCategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("StoreCategoryId1")
-                        .HasColumnType("int");
-
                     b.Property<int>("Style")
                         .HasColumnType("int");
 
@@ -257,9 +214,9 @@ namespace Fashion.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("StoreCategoryId");
+                    b.HasIndex("CategoryId");
 
-                    b.HasIndex("StoreCategoryId1");
+                    b.HasIndex("StoreCategoryId");
 
                     b.ToTable("Items");
                 });
@@ -292,9 +249,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<DateTime?>("LastLoginAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ManagerId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -312,6 +266,10 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<string>("Position")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ProfileImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("StoreAddress")
                         .HasMaxLength(200)
@@ -454,10 +412,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<int>("DisplayOrder")
                         .HasColumnType("int");
 
@@ -503,22 +457,6 @@ namespace Fashion.Infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("AboutText")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("AccentColor")
-                        .HasMaxLength(7)
-                        .HasColumnType("nvarchar(7)");
-
-                    b.Property<string>("ContactEmail")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("ContactPhone")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -536,14 +474,6 @@ namespace Fashion.Infrastructure.Migrations
                         .HasMaxLength(7)
                         .HasColumnType("nvarchar(7)");
 
-                    b.Property<string>("SecondaryColor")
-                        .HasMaxLength(7)
-                        .HasColumnType("nvarchar(7)");
-
-                    b.Property<string>("SocialMediaLinks")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<string>("StoreName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -555,10 +485,6 @@ namespace Fashion.Infrastructure.Migrations
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("WebsiteUrl")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.HasKey("Id");
 
@@ -693,6 +619,73 @@ namespace Fashion.Infrastructure.Migrations
                     b.ToTable("StoreSettings");
                 });
 
+            modelBuilder.Entity("Fashion.Core.Entities.TeamMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("IDNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastLoginAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<int>("ManagerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ManagerId1")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("ProfileImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ManagerId");
+
+                    b.HasIndex("ManagerId1");
+
+                    b.ToTable("TeamMembers");
+                });
+
             modelBuilder.Entity("Fashion.Core.Entities.User", b =>
                 {
                     b.Property<int>("Id")
@@ -807,9 +800,10 @@ namespace Fashion.Infrastructure.Migrations
 
             modelBuilder.Entity("Fashion.Core.Entities.FittingRoomRequest", b =>
                 {
-                    b.HasOne("Fashion.Core.Entities.FittingRoom", "AssignedFittingRoom")
-                        .WithMany()
-                        .HasForeignKey("AssignedFittingRoomId");
+                    b.HasOne("Fashion.Core.Entities.TeamMember", "HandledByTeamMember")
+                        .WithMany("HandledRequests")
+                        .HasForeignKey("HandledByStaffId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("Fashion.Core.Entities.Item", "Item")
                         .WithMany("FittingRoomRequests")
@@ -823,7 +817,7 @@ namespace Fashion.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("AssignedFittingRoom");
+                    b.Navigation("HandledByTeamMember");
 
                     b.Navigation("Item");
 
@@ -832,14 +826,14 @@ namespace Fashion.Infrastructure.Migrations
 
             modelBuilder.Entity("Fashion.Core.Entities.Item", b =>
                 {
-                    b.HasOne("Fashion.Core.Entities.Category", "CategoryEntity")
+                    b.HasOne("Fashion.Core.Entities.Category", null)
+                        .WithMany("Items")
+                        .HasForeignKey("CategoryId");
+
+                    b.HasOne("Fashion.Core.Entities.StoreCategory", "CategoryEntity")
                         .WithMany("Items")
                         .HasForeignKey("StoreCategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("Fashion.Core.Entities.StoreCategory", null)
-                        .WithMany("Items")
-                        .HasForeignKey("StoreCategoryId1");
 
                     b.Navigation("CategoryEntity");
                 });
@@ -880,6 +874,21 @@ namespace Fashion.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("ParentCategory");
+                });
+
+            modelBuilder.Entity("Fashion.Core.Entities.TeamMember", b =>
+                {
+                    b.HasOne("Fashion.Core.Entities.Manager", "Manager")
+                        .WithMany()
+                        .HasForeignKey("ManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Fashion.Core.Entities.Manager", null)
+                        .WithMany("TeamMembers")
+                        .HasForeignKey("ManagerId1");
+
+                    b.Navigation("Manager");
                 });
 
             modelBuilder.Entity("Fashion.Core.Entities.WishlistItem", b =>
@@ -930,11 +939,21 @@ namespace Fashion.Infrastructure.Migrations
                     b.Navigation("WishlistItems");
                 });
 
+            modelBuilder.Entity("Fashion.Core.Entities.Manager", b =>
+                {
+                    b.Navigation("TeamMembers");
+                });
+
             modelBuilder.Entity("Fashion.Core.Entities.StoreCategory", b =>
                 {
                     b.Navigation("Items");
 
                     b.Navigation("SubCategories");
+                });
+
+            modelBuilder.Entity("Fashion.Core.Entities.TeamMember", b =>
+                {
+                    b.Navigation("HandledRequests");
                 });
 
             modelBuilder.Entity("Fashion.Core.Entities.User", b =>

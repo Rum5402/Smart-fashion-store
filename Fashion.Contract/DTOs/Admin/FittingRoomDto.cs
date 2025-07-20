@@ -52,4 +52,6 @@ namespace Fashion.Contract.DTOs.Admin
         public int OccupiedRooms { get; set; }
         public List<FittingRoomDto> Rooms { get; set; } = new();
     }
+
+
 } 

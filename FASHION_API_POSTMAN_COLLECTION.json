@@ -1,0 +1,689 @@
+{
+  "info": {
+    "name": "Fashion Store API",
+    "description": "Complete API collection for Fashion Store",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:7001"
+    },
+    {
+      "key": "authToken",
+      "value": ""
+    },
+    {
+      "key": "managerToken",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Explore Mode",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"device_123456\",\n  \"sessionId\": \"session_789\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/explore-mode"
+          }
+        },
+        {
+          "name": "Guest Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"device_123456\",\n  \"sessionId\": \"session_789\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/guest-login"
+          }
+        },
+        {
+          "name": "Team Member Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sara Ahmed\",\n  \"phoneNumber\": \"+201112223334\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/team-member/login"
+          }
+        },
+        {
+          "name": "Manager Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"+201234567890\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/manager/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/items"
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/items/1"
+          }
+        },
+        {
+          "name": "Get New Collection",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/items/new-collection"
+          }
+        },
+        {
+          "name": "Get Best Sellers",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/items/best-sellers"
+          }
+        },
+        {
+          "name": "Get Products on Sale",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/items/on-sale"
+          }
+        },
+        {
+          "name": "Get Products by Category",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/items/category/Men"
+          }
+        },
+        {
+          "name": "Get Products by Type",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/items/type/T-Shirt"
+          }
+        },
+        {
+          "name": "Get Products by Style",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/items/style/Casual"
+          }
+        },
+        {
+          "name": "Get Products by Color",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/items/color/Blue"
+          }
+        },
+        {
+          "name": "Get Products by Price Range",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/items/price-range?minPrice=50&maxPrice=200"
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/items/search?query=cotton"
+          }
+        },
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium Cotton T-Shirt\",\n  \"description\": \"High-quality cotton t-shirt with modern design\",\n  \"price\": 89.99,\n  \"productCode\": \"TSH-001\",\n  \"originalPrice\": 120.00,\n  \"category\": 1,\n  \"style\": 1,\n  \"productType\": 1,\n  \"storeActivity\": 1,\n  \"fabricType\": \"100% Cotton\",\n  \"subCategory\": \"Basic Tees\",\n  \"brandName\": \"Fashion Elite\",\n  \"availableSizes\": [\"S\", \"M\", \"L\", \"XL\"],\n  \"availableColors\": [\"White\", \"Black\", \"Blue\"],\n  \"imageUrls\": [\n    \"https://example.com/images/tshirt-white.jpg\",\n    \"https://example.com/images/tshirt-black.jpg\",\n    \"https://example.com/images/tshirt-blue.jpg\"\n  ],\n  \"tags\": [\"cotton\", \"basic\", \"casual\", \"comfortable\"],\n  \"isNewCollection\": true,\n  \"isBestSeller\": false,\n  \"isOnSale\": true,\n  \"storeCategoryId\": 1\n}"
+            },
+            "url": "{{baseUrl}}/api/items"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Store Management",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/store/categories"
+          }
+        },
+        {
+          "name": "Create Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Summer Collection\",\n  \"description\": \"Light and comfortable summer wear\",\n  \"parentCategoryId\": null,\n  \"displayOrder\": 1,\n  \"isActive\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/store/categories"
+          }
+        },
+        {
+          "name": "Get All Filters",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/store/filters"
+          }
+        },
+        {
+          "name": "Create Filter",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Price Range Filter\",\n  \"type\": 1,\n  \"options\": [\n    {\"value\": \"0-50\", \"label\": \"Under $50\"},\n    {\"value\": \"50-100\", \"label\": \"$50 - $100\"},\n    {\"value\": \"100-200\", \"label\": \"$100 - $200\"},\n    {\"value\": \"200+\", \"label\": \"Over $200\"}\n  ],\n  \"isActive\": true,\n  \"displayOrder\": 1\n}"
+            },
+            "url": "{{baseUrl}}/api/store/filters"
+          }
+        },
+        {
+          "name": "Get All Banners",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/store/banners"
+          }
+        },
+        {
+          "name": "Create Banner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Summer Sale\",\n  \"subtitle\": \"Up to 50% off\",\n  \"imageUrl\": \"https://example.com/banners/summer-sale.jpg\",\n  \"linkUrl\": \"/sale\",\n  \"displayOrder\": 1,\n  \"isActive\": true,\n  \"startDate\": \"2024-06-01T00:00:00Z\",\n  \"endDate\": \"2024-08-31T23:59:59Z\"\n}"
+            },
+            "url": "{{baseUrl}}/api/store/banners"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Wishlist",
+      "item": [
+        {
+          "name": "Get User Wishlist",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/wishlist"
+          }
+        },
+        {
+          "name": "Add to Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemId\": 1\n}"
+            },
+            "url": "{{baseUrl}}/api/wishlist/add"
+          }
+        },
+        {
+          "name": "Remove from Wishlist",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemId\": 1\n}"
+            },
+            "url": "{{baseUrl}}/api/wishlist/remove"
+          }
+        },
+        {
+          "name": "Check if Item in Wishlist",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/wishlist/check/1"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Fitting Room Requests",
+      "item": [
+        {
+          "name": "Create Fitting Room Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"itemIds\": [1, 2, 3],\n  \"preferredSize\": \"M\",\n  \"preferredColor\": \"Blue\",\n  \"notes\": \"Please prepare these items for fitting\",\n  \"requestedDate\": \"2024-01-15T14:00:00Z\"\n}"
+            },
+            "url": "{{baseUrl}}/api/fitting-room-requests"
+          }
+        },
+        {
+          "name": "Get My Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/fitting-room-requests/my-requests"
+          }
+        },
+        {
+          "name": "Get All Requests (Staff)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/fitting-room-requests"
+          }
+        },
+        {
+          "name": "Complete Request",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/fitting-room-requests/1/complete"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Product Filter",
+      "item": [
+        {
+          "name": "Filter Products",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"searchTerm\": \"cotton\",\n  \"categories\": [\"Men\", \"Women\"],\n  \"styles\": [\"Casual\"],\n  \"sizes\": [\"M\", \"L\"],\n  \"colors\": [\"Blue\", \"Black\"],\n  \"minPrice\": 50.0,\n  \"maxPrice\": 200.0,\n  \"isNewCollection\": true,\n  \"sortOrder\": \"PriceLowToHigh\",\n  \"page\": 1,\n  \"pageSize\": 20\n}"
+            },
+            "url": "{{baseUrl}}/api/product-filter/filter"
+          }
+        },
+        {
+          "name": "Get Filter Metadata",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"searchTerm\": \"cotton\",\n  \"categories\": [\"Men\"]\n}"
+            },
+            "url": "{{baseUrl}}/api/product-filter/metadata"
+          }
+        },
+        {
+          "name": "Get Quick Filters",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/product-filter/quick-filters"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Team Member Management",
+      "item": [
+        {
+          "name": "Add Team Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ahmed Hassan\",\n  \"phoneNumber\": \"+201112223334\",\n  \"email\": \"ahmed.hassan@example.com\",\n  \"role\": \"Sales Associate\",\n  \"isActive\": true\n}"
+            },
+            "url": "{{baseUrl}}/api/team-member/add"
+          }
+        },
+        {
+          "name": "Get Team Members",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/team-member/list"
+          }
+        },
+        {
+          "name": "Get Active Team Members",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/team-member/active"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Manager Dashboard",
+      "item": [
+        {
+          "name": "Get Dashboard Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/manager/dashboard/overview"
+          }
+        },
+        {
+          "name": "Get Inventory Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/manager/dashboard/analytics/inventory"
+          }
+        },
+        {
+          "name": "Create Product (Dashboard)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium Cotton T-Shirt\",\n  \"description\": \"High-quality cotton t-shirt with modern design\",\n  \"price\": 89.99,\n  \"productCode\": \"TSH-001\",\n  \"originalPrice\": 120.00,\n  \"category\": 1,\n  \"style\": 1,\n  \"productType\": 1,\n  \"storeActivity\": 1,\n  \"fabricType\": \"100% Cotton\",\n  \"subCategory\": \"Basic Tees\",\n  \"brandName\": \"Fashion Elite\",\n  \"availableSizes\": [\"S\", \"M\", \"L\", \"XL\"],\n  \"availableColors\": [\"White\", \"Black\", \"Blue\"],\n  \"imageUrls\": [\n    \"https://example.com/images/tshirt-white.jpg\",\n    \"https://example.com/images/tshirt-black.jpg\",\n    \"https://example.com/images/tshirt-blue.jpg\"\n  ],\n  \"tags\": [\"cotton\", \"basic\", \"casual\", \"comfortable\"],\n  \"isNewCollection\": true,\n  \"isBestSeller\": false,\n  \"isOnSale\": true,\n  \"storeCategoryId\": 1\n}"
+            },
+            "url": "{{baseUrl}}/api/manager/dashboard/products"
+          }
+        },
+        {
+          "name": "Get Fitting Room Requests",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/manager/dashboard/requests"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Mix & Match",
+      "item": [
+        {
+          "name": "Get Mix & Match Suggestions",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/mix-match/suggestions/1"
+          }
+        },
+        {
+          "name": "Get Mix & Match Outfits by Category",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/mix-match/outfits/Men"
+          }
+        },
+        {
+          "name": "Get Trending Mix & Match",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/mix-match/trending"
+          }
+        },
+        {
+          "name": "Save Mix & Match Combination",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Casual Summer Outfit\",\n  \"description\": \"Perfect for casual summer days\",\n  \"items\": [1, 2, 3],\n  \"category\": \"Men\",\n  \"style\": \"Casual\",\n  \"occasion\": \"Casual\",\n  \"tags\": [\"summer\", \"casual\", \"comfortable\"]\n}"
+            },
+            "url": "{{baseUrl}}/api/mix-match/save-combination"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        {
+          "name": "Get User Notifications",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/notifications"
+          }
+        },
+        {
+          "name": "Respond to Notification",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"response\": \"Your fitting room request has been approved. Items will be ready at 2:00 PM.\"\n}"
+            },
+            "url": "{{baseUrl}}/api/notifications/1/respond"
+          }
+        }
+      ]
+    }
+  ]
+} 

@@ -97,11 +97,30 @@ namespace Fashion.Api
                     };
                 });
 
-            // Add Authorization
-            builder.Services.AddAuthorization();
+            // Add Authorization with custom policies
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("CustomerPolicy", policy => 
+                    policy.RequireRole("Customer", "Guest", "Explore"));
+                options.AddPolicy("ManagerPolicy", policy => 
+                    policy.RequireRole("Manager"));
+                options.AddPolicy("AdminPolicy", policy => 
+                    policy.RequireRole("Admin"));
+                options.AddPolicy("StaffPolicy", policy => 
+                    policy.RequireRole("Manager", "Admin"));
+                options.AddPolicy("TeamMemberPolicy", policy => 
+                    policy.RequireRole("TeamMember"));
+            });
+
+            // Add Memory Cache
+            builder.Services.AddMemoryCache();
 
             // Add Services
             builder.Services.AddScoped<IJwtService, JwtService>();
+            
+            // Add Global Exception Handler
+            builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+            builder.Services.AddProblemDetails();
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IItemService, ItemService>();
             builder.Services.AddScoped<IColorDetectionService, ColorDetectionService>();
@@ -111,7 +130,14 @@ namespace Fashion.Api
             builder.Services.AddScoped<IWishlistService, WishlistService>();
             builder.Services.AddScoped<IStoreManagementService, StoreManagementService>();
             builder.Services.AddScoped<IStoreControlService, StoreControlService>();
+            builder.Services.AddScoped<IProductFilterService, ProductFilterService>();
             builder.Services.AddScoped<IFittingRoomManagementService, FittingRoomManagementService>();
+            builder.Services.AddScoped<IHomeService, HomeService>();
+            builder.Services.AddScoped<IManagerProfileService, ManagerProfileService>();
+            builder.Services.AddScoped<IFittingRoomRequestService, FittingRoomRequestService>();
+            builder.Services.AddScoped<Fashion.Service.Common.ICacheService, Fashion.Service.Common.CacheService>();
+            builder.Services.AddScoped<ITeamMemberService, TeamMemberService>();
+            builder.Services.AddScoped<ITeamMemberFittingRoomService, TeamMemberFittingRoomService>();
 
             // Add CORS
             builder.Services.AddCors(options =>
@@ -162,6 +188,9 @@ namespace Fashion.Api
             app.UseAuthorization();
             app.UseAdminAuthorization();
             app.UseWishlistAuthorization();
+            
+            // Add global exception handler
+            app.UseExceptionHandler();
 
             app.MapControllers();
             app.MapHub<NotificationHub>("/notificationHub");

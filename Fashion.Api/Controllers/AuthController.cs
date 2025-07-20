@@ -1,4 +1,5 @@
 using Fashion.Contract.DTOs.Auth;
+using Fashion.Contract.DTOs.Common;
 using Fashion.Service.Authentications;
 using Fashion.Service.JWT;
 using Microsoft.AspNetCore.Mvc;
@@ -14,11 +15,13 @@ namespace Fashion.Api.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly ITeamMemberService _teamMemberService;
         private readonly IJwtService _jwtService;
 
-        public AuthController(IAuthService authService, IJwtService jwtService)
+        public AuthController(IAuthService authService, ITeamMemberService teamMemberService, IJwtService jwtService)
         {
             _authService = authService;
+            _teamMemberService = teamMemberService;
             _jwtService = jwtService;
         }
 
@@ -54,9 +57,16 @@ namespace Fashion.Api.Controllers
             return Ok(result);
         }
 
+        [HttpPost("team-member/login")]
+        [AllowAnonymous]
+        public async Task<ActionResult<ApiResponse<TeamMemberLoginResponse>>> TeamMemberLogin([FromBody] TeamMemberLoginRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-
-
+            var response = await _teamMemberService.LoginAsync(request);
+            return Ok(response);
+        }
 
         [HttpPost("manager/login")]
         public async Task<IActionResult> ManagerLogin([FromBody] ManagerLoginRequest request)

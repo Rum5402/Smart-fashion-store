@@ -1,8 +1,8 @@
 using Fashion.Api.Filters;
 using Fashion.Contract.Interface;
+using Fashion.Contract.DTOs.Notifications;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.ComponentModel.DataAnnotations;
 
 namespace Fashion.Api.Controllers
 {
@@ -49,14 +49,7 @@ namespace Fashion.Api.Controllers
             if (!success)
                 return NotFound(new { success = false, message = "Notification not found" });
 
-            return Ok(new { success = true, message = "Response sent to user successfully" });
-        }
+                    return Ok(new { success = true, message = "Response sent to user successfully" });
     }
-
-    public class RespondToNotificationRequest
-    {
-        [Required]
-        [MaxLength(500)]
-        public string Response { get; set; } = string.Empty;
-    }
+}
 } 

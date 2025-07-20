@@ -31,5 +31,15 @@ namespace Fashion.Service.Store
         // Brand Settings
         Task<BrandSettingsDto?> GetBrandSettingsAsync();
         Task<BrandSettingsDto> UpdateBrandSettingsAsync(UpdateBrandSettingsRequest request);
+        
+        // Store Information
+        Task<StoreInfoDto> GetStoreInfoAsync();
+        Task<StoreLocationDto> GetStoreLocationAsync();
+        Task<StoreContactDto> GetStoreContactAsync();
+        Task<StoreDescriptionDto> GetStoreDescriptionAsync();
+        Task<List<BannerDto>> GetStoreBannersAsync();
+        Task<List<CategoryDto>> GetStoreCategoriesAsync();
+        Task<List<FilterDto>> GetStoreFiltersAsync();
+        Task<List<FilterPresetDto>> GetStoreFilterPresetsAsync();
     }
 } 

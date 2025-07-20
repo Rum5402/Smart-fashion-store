@@ -1,0 +1,504 @@
+{
+  "info": {
+    "name": "Fashion Store API - Complete Collection",
+    "description": "Complete Postman collection for Fashion Store API with test data for all endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://localhost:7001",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "managerToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Explore Mode",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"device_123456\",\n  \"sessionId\": \"session_789\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/explore-mode",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "explore-mode"]
+            }
+          }
+        },
+        {
+          "name": "Guest Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"device_123456\",\n  \"sessionId\": \"session_789\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/guest-login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "guest-login"]
+            }
+          }
+        },
+        {
+          "name": "Save Profile",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ahmed Ali\",\n  \"phoneNumber\": \"+201234567890\",\n  \"email\": \"ahmed.ali@example.com\",\n  \"preferences\": {\n    \"favoriteCategories\": [\"Men\", \"Women\"],\n    \"favoriteStyles\": [\"Casual\", \"Formal\"],\n    \"sizePreference\": \"M\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/save-profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "save-profile"]
+            }
+          }
+        },
+        {
+          "name": "Team Member Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sara Ahmed\",\n  \"phoneNumber\": \"+201112223334\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/team-member/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "team-member", "login"]
+            }
+          }
+        },
+        {
+          "name": "Manager Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phoneNumber\": \"+201234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/manager/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "manager", "login"]
+            }
+          }
+        },
+        {
+          "name": "Create Manager (Admin Only)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Mohammed Hassan\",\n  \"phoneNumber\": \"+201234567891\",\n  \"email\": \"mohammed.hassan@example.com\",\n  \"storeName\": \"Fashion Elite Store\",\n  \"storeDescription\": \"Premium fashion store offering the latest trends\",\n  \"storeAddress\": \"123 Fashion Street, Cairo, Egypt\",\n  \"notes\": \"New manager for downtown branch\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/manager/create",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "manager", "create"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Products (Items)",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items"]
+            }
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "1"]
+            }
+          }
+        },
+        {
+          "name": "Get New Collection",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/new-collection",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "new-collection"]
+            }
+          }
+        },
+        {
+          "name": "Get Best Sellers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/best-sellers",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "best-sellers"]
+            }
+          }
+        },
+        {
+          "name": "Get Products on Sale",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/on-sale",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "on-sale"]
+            }
+          }
+        },
+        {
+          "name": "Get Products by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/category/Men",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "category", "Men"]
+            }
+          }
+        },
+        {
+          "name": "Get Products by Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/type/T-Shirt",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "type", "T-Shirt"]
+            }
+          }
+        },
+        {
+          "name": "Get Products by Style",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/style/Casual",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "style", "Casual"]
+            }
+          }
+        },
+        {
+          "name": "Get Products by Color",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/color/Blue",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "color", "Blue"]
+            }
+          }
+        },
+        {
+          "name": "Get Products by Price Range",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/price-range?minPrice=50&maxPrice=200",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "price-range"],
+              "query": [
+                {
+                  "key": "minPrice",
+                  "value": "50"
+                },
+                {
+                  "key": "maxPrice",
+                  "value": "200"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product Counts by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/counts/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "counts", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Product Counts by Type",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/counts/product-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "counts", "product-types"]
+            }
+          }
+        },
+        {
+          "name": "Get Product Counts by Style",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/counts/styles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "counts", "styles"]
+            }
+          }
+        },
+        {
+          "name": "Get Product Counts by Color",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/counts/colors",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "counts", "colors"]
+            }
+          }
+        },
+        {
+          "name": "Get Price Statistics",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/price-statistics",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "price-statistics"]
+            }
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/search?query=cotton",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "search"],
+              "query": [
+                {
+                  "key": "query",
+                  "value": "cotton"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Featured Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/featured",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "featured"]
+            }
+          }
+        },
+        {
+          "name": "Create Product (Manager/Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{managerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium Cotton T-Shirt\",\n  \"description\": \"High-quality cotton t-shirt with modern design\",\n  \"price\": 89.99,\n  \"productCode\": \"TSH-001\",\n  \"originalPrice\": 120.00,\n  \"category\": 1,\n  \"style\": 1,\n  \"productType\": 1,\n  \"storeActivity\": 1,\n  \"fabricType\": \"100% Cotton\",\n  \"subCategory\": \"Basic Tees\",\n  \"brandName\": \"Fashion Elite\",\n  \"availableSizes\": [\"S\", \"M\", \"L\", \"XL\"],\n  \"availableColors\": [\"White\", \"Black\", \"Blue\"],\n  \"imageUrls\": [\n    \"https://example.com/images/tshirt-white.jpg\",\n    \"https://example.com/images/tshirt-black.jpg\",\n    \"https://example.com/images/tshirt-blue.jpg\"\n  ],\n  \"tags\": [\"cotton\", \"basic\", \"casual\", \"comfortable\"],\n  \"isNewCollection\": true,\n  \"isBestSeller\": false,\n  \"isOnSale\": true,\n  \"storeCategoryId\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items"]
+            }
+          }
+        },
+        {
+          "name": "Get Form Options - Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/form-options/categories",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "form-options", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Form Options - Product Types",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/form-options/product-types",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "form-options", "product-types"]
+            }
+          }
+        },
+        {
+          "name": "Get Form Options - Styles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/form-options/styles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "form-options", "styles"]
+            }
+          }
+        },
+        {
+          "name": "Get Form Options - Sizes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/form-options/sizes",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "form-options", "sizes"]
+            }
+          }
+        },
+        {
+          "name": "Get Form Options - Colors",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/form-options/colors",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "form-options", "colors"]
+            }
+          }
+        },
+        {
+          "name": "Get Form Options - Suggested Tags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/form-options/suggested-tags",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "form-options", "suggested-tags"]
+            }
+          }
+        },
+        {
+          "name": "Get All Form Options",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/items/form-options",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "items", "form-options"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 

@@ -1,0 +1,612 @@
+using Fashion.Api.Filters;
+using Fashion.Contract.DTOs.Store;
+using Fashion.Contract.DTOs.Common;
+using Fashion.Service.Store;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Fashion.Api.Controllers
+{
+    /// <summary>
+    /// Controller for store control center - managing categories, filters, banners, and brand settings
+    /// </summary>
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize(Roles = "Admin,Manager")]
+    public class StoreController : ControllerBase
+    {
+        private readonly IStoreControlService _storeControlService;
+
+        public StoreController(IStoreControlService storeControlService)
+        {
+            _storeControlService = storeControlService;
+        }
+
+        #region Categories Management
+
+        /// <summary>
+        /// Get all categories for management (hierarchical structure)
+        /// </summary>
+        [HttpGet("categories")]
+        public async Task<IActionResult> GetAllCategories()
+        {
+            try
+            {
+                var categories = await _storeControlService.GetAllCategoriesAsync();
+                return Ok(ApiResponse<List<CategoryDto>>.SuccessResponse(categories, "Categories retrieved successfully", categories.Count));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<List<CategoryDto>>.ErrorResponse("Error retrieving categories", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get category by ID
+        /// </summary>
+        [HttpGet("categories/{id}")]
+        public async Task<IActionResult> GetCategoryById(int id)
+        {
+            try
+            {
+                var category = await _storeControlService.GetCategoryByIdAsync(id);
+                if (category == null)
+                    return NotFound(ApiResponse<CategoryDto>.ErrorResponse("Category not found"));
+
+                return Ok(ApiResponse<CategoryDto>.SuccessResponse(category, "Category retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<CategoryDto>.ErrorResponse("Error retrieving category", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Create new category
+        /// </summary>
+        [HttpPost("categories")]
+        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ApiResponse<CategoryDto>.ErrorResponse("Invalid request data"));
+
+                var category = await _storeControlService.CreateCategoryAsync(request);
+                return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, 
+                    ApiResponse<CategoryDto>.SuccessResponse(category, "Category created successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<CategoryDto>.ErrorResponse("Error creating category", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Update category
+        /// </summary>
+        [HttpPut("categories/{id}")]
+        public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ApiResponse<CategoryDto>.ErrorResponse("Invalid request data"));
+
+                var category = await _storeControlService.UpdateCategoryAsync(id, request);
+                if (category == null)
+                    return NotFound(ApiResponse<CategoryDto>.ErrorResponse("Category not found"));
+
+                return Ok(ApiResponse<CategoryDto>.SuccessResponse(category, "Category updated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<CategoryDto>.ErrorResponse("Error updating category", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Delete category
+        /// </summary>
+        [HttpDelete("categories/{id}")]
+        public async Task<IActionResult> DeleteCategory(int id)
+        {
+            try
+            {
+                var result = await _storeControlService.DeleteCategoryAsync(id);
+                if (!result)
+                    return NotFound(ApiResponse<bool>.ErrorResponse("Category not found or has subcategories"));
+
+                return Ok(ApiResponse<bool>.SuccessResponse(true, "Category deleted successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error deleting category", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Toggle category status (active/inactive)
+        /// </summary>
+        [HttpPatch("categories/{id}/toggle-status")]
+        public async Task<IActionResult> ToggleCategoryStatus(int id)
+        {
+            try
+            {
+                var result = await _storeControlService.ToggleCategoryStatusAsync(id);
+                if (!result)
+                    return NotFound(ApiResponse<bool>.ErrorResponse("Category not found"));
+
+                return Ok(ApiResponse<bool>.SuccessResponse(true, "Category status toggled successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error toggling category status", ex.Message));
+            }
+        }
+
+        #endregion
+
+        #region Filters Management
+
+        /// <summary>
+        /// Get all filters for management
+        /// </summary>
+        [HttpGet("filters")]
+        public async Task<IActionResult> GetAllFilters()
+        {
+            try
+            {
+                var filters = await _storeControlService.GetAllFiltersAsync();
+                return Ok(ApiResponse<List<FilterDto>>.SuccessResponse(filters, "Filters retrieved successfully", filters.Count));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<List<FilterDto>>.ErrorResponse("Error retrieving filters", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get filter by ID
+        /// </summary>
+        [HttpGet("filters/{id}")]
+        public async Task<IActionResult> GetFilterById(int id)
+        {
+            try
+            {
+                var filter = await _storeControlService.GetFilterByIdAsync(id);
+                if (filter == null)
+                    return NotFound(ApiResponse<FilterDto>.ErrorResponse("Filter not found"));
+
+                return Ok(ApiResponse<FilterDto>.SuccessResponse(filter, "Filter retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<FilterDto>.ErrorResponse("Error retrieving filter", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Create new filter
+        /// </summary>
+        [HttpPost("filters")]
+        public async Task<IActionResult> CreateFilter([FromBody] CreateFilterRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ApiResponse<FilterDto>.ErrorResponse("Invalid request data"));
+
+                var filter = await _storeControlService.CreateFilterAsync(request);
+                return CreatedAtAction(nameof(GetFilterById), new { id = filter.Id }, 
+                    ApiResponse<FilterDto>.SuccessResponse(filter, "Filter created successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<FilterDto>.ErrorResponse("Error creating filter", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Update filter
+        /// </summary>
+        [HttpPut("filters/{id}")]
+        public async Task<IActionResult> UpdateFilter(int id, [FromBody] UpdateFilterRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ApiResponse<FilterDto>.ErrorResponse("Invalid request data"));
+
+                var filter = await _storeControlService.UpdateFilterAsync(id, request);
+                if (filter == null)
+                    return NotFound(ApiResponse<FilterDto>.ErrorResponse("Filter not found"));
+
+                return Ok(ApiResponse<FilterDto>.SuccessResponse(filter, "Filter updated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<FilterDto>.ErrorResponse("Error updating filter", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Delete filter
+        /// </summary>
+        [HttpDelete("filters/{id}")]
+        public async Task<IActionResult> DeleteFilter(int id)
+        {
+            try
+            {
+                var result = await _storeControlService.DeleteFilterAsync(id);
+                if (!result)
+                    return NotFound(ApiResponse<bool>.ErrorResponse("Filter not found"));
+
+                return Ok(ApiResponse<bool>.SuccessResponse(true, "Filter deleted successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error deleting filter", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Toggle filter status (active/inactive)
+        /// </summary>
+        [HttpPatch("filters/{id}/toggle-status")]
+        public async Task<IActionResult> ToggleFilterStatus(int id)
+        {
+            try
+            {
+                var result = await _storeControlService.ToggleFilterStatusAsync(id);
+                if (!result)
+                    return NotFound(ApiResponse<bool>.ErrorResponse("Filter not found"));
+
+                return Ok(ApiResponse<bool>.SuccessResponse(true, "Filter status toggled successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error toggling filter status", ex.Message));
+            }
+        }
+
+        #endregion
+
+        #region Banners Management
+
+        /// <summary>
+        /// Get all banners for management
+        /// </summary>
+        [HttpGet("banners")]
+        public async Task<IActionResult> GetAllBanners()
+        {
+            try
+            {
+                var banners = await _storeControlService.GetAllBannersAsync();
+                return Ok(ApiResponse<List<BannerDto>>.SuccessResponse(banners, "Banners retrieved successfully", banners.Count));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<List<BannerDto>>.ErrorResponse("Error retrieving banners", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get banner by ID
+        /// </summary>
+        [HttpGet("banners/{id}")]
+        public async Task<IActionResult> GetBannerById(int id)
+        {
+            try
+            {
+                var banner = await _storeControlService.GetBannerByIdAsync(id);
+                if (banner == null)
+                    return NotFound(ApiResponse<BannerDto>.ErrorResponse("Banner not found"));
+
+                return Ok(ApiResponse<BannerDto>.SuccessResponse(banner, "Banner retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<BannerDto>.ErrorResponse("Error retrieving banner", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Create new banner
+        /// </summary>
+        [HttpPost("banners")]
+        public async Task<IActionResult> CreateBanner([FromBody] CreateBannerRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ApiResponse<BannerDto>.ErrorResponse("Invalid request data"));
+
+                var banner = await _storeControlService.CreateBannerAsync(request);
+                return CreatedAtAction(nameof(GetBannerById), new { id = banner.Id }, 
+                    ApiResponse<BannerDto>.SuccessResponse(banner, "Banner created successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<BannerDto>.ErrorResponse("Error creating banner", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Update banner
+        /// </summary>
+        [HttpPut("banners/{id}")]
+        public async Task<IActionResult> UpdateBanner(int id, [FromBody] UpdateBannerRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ApiResponse<BannerDto>.ErrorResponse("Invalid request data"));
+
+                var banner = await _storeControlService.UpdateBannerAsync(id, request);
+                if (banner == null)
+                    return NotFound(ApiResponse<BannerDto>.ErrorResponse("Banner not found"));
+
+                return Ok(ApiResponse<BannerDto>.SuccessResponse(banner, "Banner updated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<BannerDto>.ErrorResponse("Error updating banner", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Delete banner
+        /// </summary>
+        [HttpDelete("banners/{id}")]
+        public async Task<IActionResult> DeleteBanner(int id)
+        {
+            try
+            {
+                var result = await _storeControlService.DeleteBannerAsync(id);
+                if (!result)
+                    return NotFound(ApiResponse<bool>.ErrorResponse("Banner not found"));
+
+                return Ok(ApiResponse<bool>.SuccessResponse(true, "Banner deleted successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error deleting banner", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Toggle banner status (active/inactive)
+        /// </summary>
+        [HttpPatch("banners/{id}/toggle-status")]
+        public async Task<IActionResult> ToggleBannerStatus(int id)
+        {
+            try
+            {
+                var result = await _storeControlService.ToggleBannerStatusAsync(id);
+                if (!result)
+                    return NotFound(ApiResponse<bool>.ErrorResponse("Banner not found"));
+
+                return Ok(ApiResponse<bool>.SuccessResponse(true, "Banner status toggled successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error toggling banner status", ex.Message));
+            }
+        }
+
+        #endregion
+
+        #region Brand Settings Management
+
+        /// <summary>
+        /// Get brand settings
+        /// </summary>
+        [HttpGet("brand-settings")]
+        public async Task<IActionResult> GetBrandSettings()
+        {
+            try
+            {
+                var brandSettings = await _storeControlService.GetBrandSettingsAsync();
+                if (brandSettings == null)
+                    return NotFound(ApiResponse<BrandSettingsDto>.ErrorResponse("Brand settings not found"));
+
+                return Ok(ApiResponse<BrandSettingsDto>.SuccessResponse(brandSettings, "Brand settings retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<BrandSettingsDto>.ErrorResponse("Error retrieving brand settings", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Update brand settings
+        /// </summary>
+        [HttpPut("brand-settings")]
+        public async Task<IActionResult> UpdateBrandSettings([FromBody] UpdateBrandSettingsRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(ApiResponse<BrandSettingsDto>.ErrorResponse("Invalid request data"));
+
+                var brandSettings = await _storeControlService.UpdateBrandSettingsAsync(request);
+                return Ok(ApiResponse<BrandSettingsDto>.SuccessResponse(brandSettings, "Brand settings updated successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<BrandSettingsDto>.ErrorResponse("Error updating brand settings", ex.Message));
+            }
+        }
+
+        #endregion
+
+        #region Public Endpoints (Anonymous Access)
+
+        /// <summary>
+        /// Get store information including brand name, location, and contact details
+        /// </summary>
+        [HttpGet("info")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStoreInfo()
+        {
+            try
+            {
+                var storeInfo = await _storeControlService.GetStoreInfoAsync();
+                return Ok(ApiResponse<StoreInfoDto>.SuccessResponse(storeInfo, "Store information retrieved successfully"));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<StoreInfoDto>.ErrorResponse("Error retrieving store information", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get store location and contact information
+        /// </summary>
+        [HttpGet("location")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStoreLocation()
+        {
+            try
+            {
+                var location = await _storeControlService.GetStoreLocationAsync();
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = "Store location retrieved successfully",
+                    data = location
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving store location", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get store contact information
+        /// </summary>
+        [HttpGet("contact")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStoreContact()
+        {
+            try
+            {
+                var contact = await _storeControlService.GetStoreContactAsync();
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = "Store contact information retrieved successfully",
+                    data = contact
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving store contact", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get store description and about information
+        /// </summary>
+        [HttpGet("description")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStoreDescription()
+        {
+            try
+            {
+                var description = await _storeControlService.GetStoreDescriptionAsync();
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = "Store description retrieved successfully",
+                    data = description
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving store description", details = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get store banners and promotional content (public)
+        /// </summary>
+        [HttpGet("banners/public")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStoreBanners()
+        {
+            try
+            {
+                var banners = await _storeControlService.GetStoreBannersAsync();
+                return Ok(ApiResponse<IEnumerable<BannerDto>>.SuccessResponse(banners, "Store banners retrieved successfully", banners.Count()));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<IEnumerable<BannerDto>>.ErrorResponse("Error retrieving store banners", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get store categories (public)
+        /// </summary>
+        [HttpGet("categories/public")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStoreCategories()
+        {
+            try
+            {
+                var categories = await _storeControlService.GetStoreCategoriesAsync();
+                return Ok(ApiResponse<IEnumerable<CategoryDto>>.SuccessResponse(categories, "Store categories retrieved successfully", categories.Count()));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<IEnumerable<CategoryDto>>.ErrorResponse("Error retrieving store categories", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get store filters (public)
+        /// </summary>
+        [HttpGet("filters/public")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStoreFilters()
+        {
+            try
+            {
+                var filters = await _storeControlService.GetStoreFiltersAsync();
+                return Ok(ApiResponse<IEnumerable<FilterDto>>.SuccessResponse(filters, "Store filters retrieved successfully", filters.Count()));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ApiResponse<IEnumerable<FilterDto>>.ErrorResponse("Error retrieving store filters", ex.Message));
+            }
+        }
+
+        /// <summary>
+        /// Get store filter presets
+        /// </summary>
+        [HttpGet("filter-presets")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetStoreFilterPresets()
+        {
+            try
+            {
+                var filterPresets = await _storeControlService.GetStoreFilterPresetsAsync();
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = "Store filter presets retrieved successfully",
+                    data = filterPresets
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving store filter presets", details = ex.Message });
+            }
+        }
+
+        #endregion
+    }
+} 

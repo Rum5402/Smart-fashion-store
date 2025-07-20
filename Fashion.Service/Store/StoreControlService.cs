@@ -220,7 +220,7 @@ namespace Fashion.Service.Store
             var banners = await _context.StoreBanners
                 .Where(b => !b.IsDeleted)
                 .OrderBy(b => b.DisplayOrder)
-                .ThenBy(b => b.Name)
+                .ThenBy(b => b.CreatedAt)
                 .ToListAsync();
 
             return banners.Select(MapToBannerDto).ToList();
@@ -239,12 +239,9 @@ namespace Fashion.Service.Store
             var banner = new StoreBanner
             {
                 Name = request.Name,
-                Description = request.Description,
                 ImageUrl = request.ImageUrl,
                 LinkUrl = request.LinkUrl,
                 DisplayOrder = request.DisplayOrder,
-                StartDate = request.StartDate,
-                EndDate = request.EndDate,
                 IsActive = true
             };
 
@@ -263,12 +260,9 @@ namespace Fashion.Service.Store
                 return null;
 
             banner.Name = request.Name;
-            banner.Description = request.Description;
             banner.ImageUrl = request.ImageUrl;
             banner.LinkUrl = request.LinkUrl;
             banner.DisplayOrder = request.DisplayOrder;
-            banner.StartDate = request.StartDate;
-            banner.EndDate = request.EndDate;
             banner.IsActive = request.IsActive;
             banner.UpdatedAt = DateTime.UtcNow;
 
@@ -308,6 +302,222 @@ namespace Fashion.Service.Store
         }
         #endregion
 
+        #region Store Information
+        public async Task<StoreInfoDto> GetStoreInfoAsync()
+        {
+            // Simulate async operation
+            await Task.Delay(1);
+            
+            // For now, return hardcoded ZARA store information
+            // In a real application, this would come from the database
+            return new StoreInfoDto
+            {
+                Id = 1,
+                BrandName = "ZARA",
+                StoreName = "ZARA - Cairo Festival City",
+                LocationName = "Cairo Festival City Mall (New Cairo)",
+                Address = "Ring Road, Cairo Festival City, 2nd Floor, New Cairo, Cairo",
+                PhoneNumber = "+2 01007972537",
+                Email = "info@zara.com",
+                Website = "https://www.zara.com",
+                Description = "Step into a world of fashion that's always ahead. From timeless everyday wear to bold statement pieces, ZARA brings you the latest trends with a touch of effortless style. Redefine your wardrobe with pieces that speak your style, your way.",
+                LogoUrl = "/images/zara-logo.png",
+                BannerUrl = "/images/zara-banner.jpg",
+                OpeningHours = "10:00 AM - 10:00 PM",
+                SocialMediaLinks = new Dictionary<string, string>
+                {
+                    { "Facebook", "https://facebook.com/zara" },
+                    { "Instagram", "https://instagram.com/zara" },
+                    { "Twitter", "https://twitter.com/zara" }
+                },
+                Features = new List<string>
+                {
+                    "Fitting Rooms",
+                    "Personal Styling",
+                    "Alterations",
+                    "Gift Cards",
+                    "Loyalty Program"
+                },
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+        }
+
+        public async Task<StoreLocationDto> GetStoreLocationAsync()
+        {
+            // Simulate async operation
+            await Task.Delay(1);
+            
+            return new StoreLocationDto
+            {
+                LocationName = "Cairo Festival City Mall (New Cairo)",
+                Address = "Ring Road, Cairo Festival City, 2nd Floor, New Cairo, Cairo",
+                City = "New Cairo",
+                Country = "Egypt",
+                PostalCode = "11835",
+                Latitude = 30.0444,
+                Longitude = 31.2357,
+                Floor = "2nd Floor",
+                MallName = "Cairo Festival City Mall"
+            };
+        }
+
+        public async Task<StoreContactDto> GetStoreContactAsync()
+        {
+            // Simulate async operation
+            await Task.Delay(1);
+            
+            return new StoreContactDto
+            {
+                PhoneNumber = "+2 01007972537",
+                SecondaryPhoneNumber = "+2 01007972538",
+                Email = "cairo.festival@zara.com",
+                WhatsAppNumber = "+2 01007972537",
+                Website = "https://www.zara.com",
+                SocialMediaLinks = new Dictionary<string, string>
+                {
+                    { "Facebook", "https://facebook.com/zara" },
+                    { "Instagram", "https://instagram.com/zara" },
+                    { "Twitter", "https://twitter.com/zara" },
+                    { "YouTube", "https://youtube.com/zara" }
+                }
+            };
+        }
+
+        public async Task<StoreDescriptionDto> GetStoreDescriptionAsync()
+        {
+            // Simulate async operation
+            await Task.Delay(1);
+            
+            return new StoreDescriptionDto
+            {
+                Description = "Step into a world of fashion that's always ahead. From timeless everyday wear to bold statement pieces, ZARA brings you the latest trends with a touch of effortless style. Redefine your wardrobe with pieces that speak your style, your way.",
+                AboutUs = "ZARA is one of the world's largest international fashion companies. It belongs to Inditex, one of the world's largest distribution groups. The customer is at the heart of our unique business model, which includes design, production, distribution and sales through our extensive retail network.",
+                Mission = "To provide high-quality, trendy fashion at affordable prices while maintaining sustainable practices and excellent customer service.",
+                Vision = "To be the leading global fashion retailer, inspiring customers with innovative designs and exceptional shopping experiences.",
+                Values = new List<string>
+                {
+                    "Innovation",
+                    "Sustainability",
+                    "Customer Focus",
+                    "Quality",
+                    "Diversity"
+                },
+                Highlights = new List<string>
+                {
+                    "Latest Fashion Trends",
+                    "Sustainable Fashion",
+                    "Personal Styling Services",
+                    "Global Fashion Network",
+                    "Fast Fashion Innovation"
+                }
+            };
+        }
+
+        public async Task<List<BannerDto>> GetStoreBannersAsync()
+        {
+            var banners = await _context.StoreBanners
+                .Where(b => b.IsActive && !b.IsDeleted)
+                .OrderBy(b => b.DisplayOrder)
+                .ThenBy(b => b.CreatedAt)
+                .ToListAsync();
+
+            return banners.Select(MapToBannerDto).ToList();
+        }
+
+        public async Task<List<CategoryDto>> GetStoreCategoriesAsync()
+        {
+            var categories = await _context.StoreCategories
+                .Include(c => c.ParentCategory)
+                .Include(c => c.SubCategories)
+                .Where(c => c.IsActive && !c.IsDeleted)
+                .OrderBy(c => c.DisplayOrder)
+                .ThenBy(c => c.Name)
+                .ToListAsync();
+
+            return categories.Select(MapToCategoryDto).ToList();
+        }
+
+        public async Task<List<FilterDto>> GetStoreFiltersAsync()
+        {
+            var filters = await _context.StoreFilters
+                .Where(f => f.IsActive && !f.IsDeleted)
+                .OrderBy(f => f.DisplayOrder)
+                .ThenBy(f => f.Name)
+                .ToListAsync();
+
+            return filters.Select(MapToFilterDto).ToList();
+        }
+
+        public async Task<List<FilterPresetDto>> GetStoreFilterPresetsAsync()
+        {
+            // Simulate async operation
+            await Task.Delay(1);
+            
+            // For now, return hardcoded filter presets
+            // In a real application, this would come from the database
+            return new List<FilterPresetDto>
+            {
+                new FilterPresetDto
+                {
+                    Id = 1,
+                    Name = "New Collection",
+                    Description = "Latest arrivals and new collection items",
+                    Filters = new Dictionary<string, object>
+                    {
+                        { "isNewCollection", true }
+                    },
+                    IsActive = true
+                },
+                new FilterPresetDto
+                {
+                    Id = 2,
+                    Name = "Best Sellers",
+                    Description = "Most popular and best-selling items",
+                    Filters = new Dictionary<string, object>
+                    {
+                        { "isBestSeller", true }
+                    },
+                    IsActive = true
+                },
+                new FilterPresetDto
+                {
+                    Id = 3,
+                    Name = "On Sale",
+                    Description = "Items currently on sale with discounts",
+                    Filters = new Dictionary<string, object>
+                    {
+                        { "isOnSale", true }
+                    },
+                    IsActive = true
+                },
+                new FilterPresetDto
+                {
+                    Id = 4,
+                    Name = "Casual Wear",
+                    Description = "Comfortable and casual clothing",
+                    Filters = new Dictionary<string, object>
+                    {
+                        { "styles", new List<string> { "Casual" } }
+                    },
+                    IsActive = true
+                },
+                new FilterPresetDto
+                {
+                    Id = 5,
+                    Name = "Formal Wear",
+                    Description = "Professional and formal clothing",
+                    Filters = new Dictionary<string, object>
+                    {
+                        { "styles", new List<string> { "Formal" } }
+                    },
+                    IsActive = true
+                }
+            };
+        }
+        #endregion
+
         #region Brand Settings
         public async Task<BrandSettingsDto?> GetBrandSettingsAsync()
         {
@@ -339,13 +549,6 @@ namespace Fashion.Service.Store
             settings.Tagline = request.Tagline;
             settings.LogoUrl = request.LogoUrl;
             settings.PrimaryColor = request.PrimaryColor;
-            settings.SecondaryColor = request.SecondaryColor;
-            settings.AccentColor = request.AccentColor;
-            settings.AboutText = request.AboutText;
-            settings.ContactEmail = request.ContactEmail;
-            settings.ContactPhone = request.ContactPhone;
-            settings.WebsiteUrl = request.WebsiteUrl;
-            settings.SocialMediaLinks = request.SocialMediaLinks;
             settings.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -397,13 +600,12 @@ namespace Fashion.Service.Store
             {
                 Id = banner.Id,
                 Name = banner.Name,
-                Description = banner.Description,
                 ImageUrl = banner.ImageUrl,
                 LinkUrl = banner.LinkUrl,
                 IsActive = banner.IsActive,
-                DisplayOrder = banner.DisplayOrder,
                 StartDate = banner.StartDate,
                 EndDate = banner.EndDate,
+                DisplayOrder = banner.DisplayOrder,
                 CreatedAt = banner.CreatedAt,
                 UpdatedAt = banner.UpdatedAt
             };
@@ -418,14 +620,7 @@ namespace Fashion.Service.Store
                 Tagline = settings.Tagline,
                 LogoUrl = settings.LogoUrl,
                 PrimaryColor = settings.PrimaryColor,
-                SecondaryColor = settings.SecondaryColor,
-                AccentColor = settings.AccentColor,
                 IsActive = settings.IsActive,
-                AboutText = settings.AboutText,
-                ContactEmail = settings.ContactEmail,
-                ContactPhone = settings.ContactPhone,
-                WebsiteUrl = settings.WebsiteUrl,
-                SocialMediaLinks = settings.SocialMediaLinks,
                 CreatedAt = settings.CreatedAt,
                 UpdatedAt = settings.UpdatedAt
             };

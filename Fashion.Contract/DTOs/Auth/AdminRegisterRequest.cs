@@ -26,10 +26,6 @@ namespace Fashion.Contract.DTOs.Auth
         [StringLength(200)]
         public string? StoreAddress { get; set; }
 
-        [Required]
-        [Range(1, int.MaxValue, ErrorMessage = "Manager ID must be a positive number")]
-        public int ManagerId { get; set; }
-
         [StringLength(500)]
         public string? Notes { get; set; }
     }

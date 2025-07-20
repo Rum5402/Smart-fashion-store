@@ -9,6 +9,7 @@ using Fashion.Service.Store;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Fashion.Service.JWT;
+using Fashion.Service.FittingRoomServices;
 
 namespace Fashion.Api.Controllers
 {
@@ -21,13 +22,15 @@ namespace Fashion.Api.Controllers
         private readonly IJwtService _jwtService;
         private readonly IStoreManagementService _storeManagementService;
         private readonly IStoreControlService _storeControlService;
+        private readonly IFittingRoomService _fittingRoomService;
 
-        public ManagerDashboardController(IItemService itemService, IJwtService jwtService, IStoreManagementService storeManagementService, IStoreControlService storeControlService)
+        public ManagerDashboardController(IItemService itemService, IJwtService jwtService, IStoreManagementService storeManagementService, IStoreControlService storeControlService, IFittingRoomService fittingRoomService)
         {
             _itemService = itemService;
             _jwtService = jwtService;
             _storeManagementService = storeManagementService;
             _storeControlService = storeControlService;
+            _fittingRoomService = fittingRoomService;
         }
 
         #region Dashboard Overview
@@ -109,7 +112,7 @@ namespace Fashion.Api.Controllers
             try
             {
                 var item = await _itemService.CreateItemAsync(request);
-                return CreatedAtAction(nameof(GetProduct), new { id = item.Id }, new { success = true, message = "Product created successfully", product = item });
+                return Created($"/api/items/{item.Id}", new { success = true, message = "Product created successfully", product = item });
             }
             catch (Exception ex)
             {
@@ -154,36 +157,8 @@ namespace Fashion.Api.Controllers
             }
         }
 
-        [HttpGet("products/{id}")]
-        public async Task<IActionResult> GetProduct(int id)
-        {
-            try
-            {
-                var item = await _itemService.GetItemByIdAsync(id);
-                if (item == null)
-                    return NotFound(new { success = false, message = "Product not found" });
-
-                return Ok(new { success = true, product = item });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error retrieving product", details = ex.Message });
-            }
-        }
-
-        [HttpGet("products")]
-        public async Task<IActionResult> GetAllProducts()
-        {
-            try
-            {
-                var items = await _itemService.GetAllItemsAsync();
-                return Ok(new { success = true, products = items, total = items.Count });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error retrieving products", details = ex.Message });
-            }
-        }
+        // Note: Product retrieval endpoints are handled by ItemsController
+        // Use /api/items for getting products
 
         [HttpPut("products/{id}/toggle-status")]
         public async Task<IActionResult> ToggleProductStatus(int id)
@@ -269,36 +244,8 @@ namespace Fashion.Api.Controllers
         #endregion
 
         #region Store Control Center - Categories
-        [HttpGet("store/categories")]
-        public async Task<IActionResult> GetAllCategories()
-        {
-            try
-            {
-                var categories = await _storeControlService.GetAllCategoriesAsync();
-                return Ok(new { success = true, categories = categories, total = categories.Count });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error retrieving categories", details = ex.Message });
-            }
-        }
-
-        [HttpGet("store/categories/{id}")]
-        public async Task<IActionResult> GetCategory(int id)
-        {
-            try
-            {
-                var category = await _storeControlService.GetCategoryByIdAsync(id);
-                if (category == null)
-                    return NotFound(new { success = false, message = "Category not found" });
-
-                return Ok(new { success = true, category = category });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error retrieving category", details = ex.Message });
-            }
-        }
+        // Note: Category retrieval endpoints are handled by StoreController
+        // Use /api/store/categories for getting categories
 
         [HttpPost("store/categories")]
         public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
@@ -309,7 +256,7 @@ namespace Fashion.Api.Controllers
             try
             {
                 var category = await _storeControlService.CreateCategoryAsync(request);
-                return CreatedAtAction(nameof(GetCategory), new { id = category.Id }, new { success = true, message = "Category created successfully", category = category });
+                return Created($"/api/store/categories/{category.Id}", new { success = true, message = "Category created successfully", category = category });
             }
             catch (Exception ex)
             {
@@ -373,36 +320,8 @@ namespace Fashion.Api.Controllers
         #endregion
 
         #region Store Control Center - Filters
-        [HttpGet("store/filters")]
-        public async Task<IActionResult> GetAllFilters()
-        {
-            try
-            {
-                var filters = await _storeControlService.GetAllFiltersAsync();
-                return Ok(new { success = true, filters = filters, total = filters.Count });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error retrieving filters", details = ex.Message });
-            }
-        }
-
-        [HttpGet("store/filters/{id}")]
-        public async Task<IActionResult> GetFilter(int id)
-        {
-            try
-            {
-                var filter = await _storeControlService.GetFilterByIdAsync(id);
-                if (filter == null)
-                    return NotFound(new { success = false, message = "Filter not found" });
-
-                return Ok(new { success = true, filter = filter });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error retrieving filter", details = ex.Message });
-            }
-        }
+        // Note: Filter retrieval endpoints are handled by StoreController
+        // Use /api/store/filters for getting filters
 
         [HttpPost("store/filters")]
         public async Task<IActionResult> CreateFilter([FromBody] CreateFilterRequest request)
@@ -413,7 +332,7 @@ namespace Fashion.Api.Controllers
             try
             {
                 var filter = await _storeControlService.CreateFilterAsync(request);
-                return CreatedAtAction(nameof(GetFilter), new { id = filter.Id }, new { success = true, message = "Filter created successfully", filter = filter });
+                return Created($"/api/store/filters/{filter.Id}", new { success = true, message = "Filter created successfully", filter = filter });
             }
             catch (Exception ex)
             {
@@ -477,36 +396,8 @@ namespace Fashion.Api.Controllers
         #endregion
 
         #region Store Control Center - Banners
-        [HttpGet("store/banners")]
-        public async Task<IActionResult> GetAllBanners()
-        {
-            try
-            {
-                var banners = await _storeControlService.GetAllBannersAsync();
-                return Ok(new { success = true, banners = banners, total = banners.Count });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error retrieving banners", details = ex.Message });
-            }
-        }
-
-        [HttpGet("store/banners/{id}")]
-        public async Task<IActionResult> GetBanner(int id)
-        {
-            try
-            {
-                var banner = await _storeControlService.GetBannerByIdAsync(id);
-                if (banner == null)
-                    return NotFound(new { success = false, message = "Banner not found" });
-
-                return Ok(new { success = true, banner = banner });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error retrieving banner", details = ex.Message });
-            }
-        }
+        // Note: Banner retrieval endpoints are handled by StoreController
+        // Use /api/store/banners for getting banners
 
         [HttpPost("store/banners")]
         public async Task<IActionResult> CreateBanner([FromBody] CreateBannerRequest request)
@@ -517,7 +408,7 @@ namespace Fashion.Api.Controllers
             try
             {
                 var banner = await _storeControlService.CreateBannerAsync(request);
-                return CreatedAtAction(nameof(GetBanner), new { id = banner.Id }, new { success = true, message = "Banner created successfully", banner = banner });
+                return Created($"/api/store/banners/{banner.Id}", new { success = true, message = "Banner created successfully", banner = banner });
             }
             catch (Exception ex)
             {
@@ -612,6 +503,42 @@ namespace Fashion.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, error = "Error updating brand settings", details = ex.Message });
+            }
+        }
+        #endregion
+
+        #region Requests
+        [HttpGet("requests")]
+        public async Task<IActionResult> GetFittingRoomRequests()
+        {
+            try
+            {
+                var requests = await _fittingRoomService.GetAllRequestsAsync();
+                var requestDtos = requests.Select(r => new Fashion.Contract.DTOs.Admin.FittingRoomRequestDto
+                {
+                    Id = r.Id,
+                    UserId = r.UserId,
+                    UserName = r.User?.Name ?? "",
+                    UserPhoneNumber = r.User?.PhoneNumber ?? "",
+                    ItemId = r.ItemId,
+                    ItemName = r.Item?.Name ?? "",
+                    ItemImageUrl = r.Item?.ImageUrls ?? "",
+                    ItemPrice = r.Item?.Price ?? 0,
+                    Status = r.Status,
+                    StatusDisplayName = r.Status.GetDisplayName(),
+                    StaffMessage = r.StaffMessage,
+                    HandledByStaffId = r.HandledByStaffId,
+                    HandledByStaffName = "", // Will be populated from staff table if needed
+                    HandledAt = r.HandledAt,
+                    CreatedAt = r.CreatedAt,
+                    UpdatedAt = r.UpdatedAt
+                }).ToList();
+
+                return Ok(requestDtos);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error retrieving fitting room requests", details = ex.Message });
             }
         }
         #endregion

@@ -42,7 +42,7 @@ namespace Fashion.Service.Wishlist
                 UserId = wi.UserId,
                 ItemId = wi.ItemId,
                 AddedAt = wi.AddedAt,
-                Item = MapToItemDto(allItems.FirstOrDefault(i => i.Id == wi.ItemId))
+                Item = MapToItemDto(allItems.FirstOrDefault(i => i.Id == wi.ItemId) ?? new Item())
             }).ToList();
 
             return new WishlistResponse
@@ -114,7 +114,7 @@ namespace Fashion.Service.Wishlist
                 {
                     UserId = userId,
                     ItemId = wishlistItem.ItemId,
-                    Status = FittingRoomStatus.Pending
+                    Status = FittingRoomStatus.NewRequest
                     // CreatedAt will be set automatically
                 };
                 await _unitOfWork.Repository<FittingRoomRequest>().AddAsync(fittingRoomRequest);
@@ -126,7 +126,7 @@ namespace Fashion.Service.Wishlist
 
         private ItemDto MapToItemDto(Item item)
         {
-            if (item == null) return null!;
+            if (item == null || item.Id == 0) return new ItemDto();
             return new ItemDto
             {
                 Id = item.Id,
@@ -152,7 +152,7 @@ namespace Fashion.Service.Wishlist
                 CreatedAt = item.CreatedAt,
                 UpdatedAt = item.UpdatedAt,
                 StoreCategoryId = item.StoreCategoryId,
-                CategoryEntity = item.CategoryEntity != null ? new CategoryDto
+                CategoryEntity = item.CategoryEntity != null ? new Fashion.Contract.DTOs.Items.CategoryDto
                 {
                     Id = item.CategoryEntity.Id,
                     Name = item.CategoryEntity.Name,

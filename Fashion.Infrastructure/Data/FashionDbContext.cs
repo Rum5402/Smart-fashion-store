@@ -27,6 +27,7 @@ namespace Fashion.Infrastructure.Data
         public DbSet<StoreFilter> StoreFilters { get; set; }
         public DbSet<StoreBanner> StoreBanners { get; set; }
         public DbSet<StoreBrandSettings> StoreBrandSettings { get; set; }
+        public DbSet<TeamMember> TeamMembers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -127,6 +128,20 @@ namespace Fashion.Infrastructure.Data
             modelBuilder.Entity<StoreFilter>()
                 .Property(f => f.SelectionType)
                 .HasConversion<int>();
+
+            // Configure TeamMember relationships
+            modelBuilder.Entity<TeamMember>()
+                .HasOne(tm => tm.Manager)
+                .WithMany()
+                .HasForeignKey(tm => tm.ManagerId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Configure FittingRoomRequest to track who handled it (TeamMember)
+            modelBuilder.Entity<FittingRoomRequest>()
+                .HasOne(f => f.HandledByTeamMember)
+                .WithMany(tm => tm.HandledRequests)
+                .HasForeignKey(f => f.HandledByStaffId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 } 

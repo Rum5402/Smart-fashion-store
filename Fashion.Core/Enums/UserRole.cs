@@ -6,6 +6,7 @@ namespace Fashion.Core.Enums
         Customer = 2,
         Guest = 3,
         Visitor = 4,
-        Explore = 5
+        Explore = 5,
+        TeamMember = 6
     }
 } 

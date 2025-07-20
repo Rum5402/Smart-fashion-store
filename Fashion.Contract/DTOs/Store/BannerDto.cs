@@ -16,11 +16,6 @@ namespace Fashion.Contract.DTOs.Store
         public string Name { get; set; } = string.Empty;
         
         /// <summary>
-        /// Banner description (optional)
-        /// </summary>
-        public string? Description { get; set; }
-        
-        /// <summary>
         /// Banner image URL (supports: JPG, PNG, WebP, Max 5MB each)
         /// </summary>
         public string ImageUrl { get; set; } = string.Empty;
@@ -34,11 +29,6 @@ namespace Fashion.Contract.DTOs.Store
         /// Whether the banner is active (displayed as "Active" or "inactive")
         /// </summary>
         public bool IsActive { get; set; }
-        
-        /// <summary>
-        /// Display order for banner sorting
-        /// </summary>
-        public int DisplayOrder { get; set; }
         
         /// <summary>
         /// Start date for banner display (optional)
@@ -59,5 +49,10 @@ namespace Fashion.Contract.DTOs.Store
         /// When the banner was last updated
         /// </summary>
         public DateTime? UpdatedAt { get; set; }
+        
+        /// <summary>
+        /// Display order for sorting banners
+        /// </summary>
+        public int DisplayOrder { get; set; }
     }
 } 

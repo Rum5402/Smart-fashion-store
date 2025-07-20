@@ -25,9 +25,6 @@ namespace Fashion.Core.Entities
         [MaxLength(200)]
         public string? StoreAddress { get; set; }
 
-        [Required]
-        public int ManagerId { get; set; }
-
         [MaxLength(500)]
         public string? Notes { get; set; }
         
@@ -40,5 +37,11 @@ namespace Fashion.Core.Entities
         public bool IsSuperManager { get; set; } = false;
         
         public DateTime? LastLoginAt { get; set; }
+        
+        [MaxLength(500)]
+        public string? ProfileImageUrl { get; set; }
+        
+        // Navigation properties
+        public virtual ICollection<TeamMember> TeamMembers { get; set; } = new List<TeamMember>();
     }
 } 

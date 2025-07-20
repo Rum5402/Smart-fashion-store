@@ -2,9 +2,7 @@ namespace Fashion.Contract.DTOs.Auth
 {
     public class LoginResponse
     {
-        public bool Success { get; set; }
         public string? Token { get; set; }
-        public string? Message { get; set; }
         public UserDto? User { get; set; }
         public ManagerDto? Manager { get; set; }
     }
@@ -32,7 +30,6 @@ namespace Fashion.Contract.DTOs.Auth
         public string? StoreName { get; set; }
         public string? StoreDescription { get; set; }
         public string? StoreAddress { get; set; }
-        public int? ManagerId { get; set; }
         public string? Notes { get; set; }
         public DateTime? CreatedAt { get; set; }
     }
