@@ -18,32 +18,30 @@ namespace Fashion.Service.Store
         }
 
         #region Categories
-        public async Task<List<CategoryDto>> GetAllCategoriesAsync()
+        public async Task<List<CategoryDto>> GetAllCategoriesAsync(int storeId)
         {
             var categories = await _context.StoreCategories
                 .Include(c => c.ParentCategory)
                 .Include(c => c.SubCategories)
                 .Include(c => c.Items)
-                .Where(c => !c.IsDeleted)
+                .Where(c => !c.IsDeleted && c.StoreId == storeId)
                 .OrderBy(c => c.DisplayOrder)
                 .ThenBy(c => c.Name)
                 .ToListAsync();
-
             return categories.Select(MapToCategoryDto).ToList();
         }
 
-        public async Task<CategoryDto?> GetCategoryByIdAsync(int id)
+        public async Task<CategoryDto?> GetCategoryByIdAsync(int id, int storeId)
         {
             var category = await _context.StoreCategories
                 .Include(c => c.ParentCategory)
                 .Include(c => c.SubCategories)
                 .Include(c => c.Items)
-                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
-
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted && c.StoreId == storeId);
             return category != null ? MapToCategoryDto(category) : null;
         }
 
-        public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequest request)
+        public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequest request, int storeId)
         {
             var category = new StoreCategory
             {
@@ -52,23 +50,20 @@ namespace Fashion.Service.Store
                 ImageUrl = request.ImageUrl,
                 ParentCategoryId = request.ParentCategoryId,
                 DisplayOrder = request.DisplayOrder,
-                IsActive = true
+                IsActive = true,
+                StoreId = storeId
             };
-
             _context.StoreCategories.Add(category);
             await _context.SaveChangesAsync();
-
-            return await GetCategoryByIdAsync(category.Id) ?? MapToCategoryDto(category);
+            return await GetCategoryByIdAsync(category.Id, storeId) ?? MapToCategoryDto(category);
         }
 
-        public async Task<CategoryDto?> UpdateCategoryAsync(int id, UpdateCategoryRequest request)
+        public async Task<CategoryDto?> UpdateCategoryAsync(int id, UpdateCategoryRequest request, int storeId)
         {
             var category = await _context.StoreCategories
-                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
-
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted && c.StoreId == storeId);
             if (category == null)
                 return null;
-
             category.Name = request.Name;
             category.Description = request.Description;
             category.ImageUrl = request.ImageUrl;
@@ -76,165 +71,133 @@ namespace Fashion.Service.Store
             category.DisplayOrder = request.DisplayOrder;
             category.IsActive = request.IsActive;
             category.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
-
-            return await GetCategoryByIdAsync(category.Id);
+            return await GetCategoryByIdAsync(category.Id, storeId);
         }
 
-        public async Task<bool> DeleteCategoryAsync(int id)
+        public async Task<bool> DeleteCategoryAsync(int id, int storeId)
         {
             var category = await _context.StoreCategories
-                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
-
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted && c.StoreId == storeId);
             if (category == null)
                 return false;
-
-            // Check if category has subcategories
             var hasSubCategories = await _context.StoreCategories
-                .AnyAsync(c => c.ParentCategoryId == id && !c.IsDeleted);
-
+                .AnyAsync(c => c.ParentCategoryId == id && !c.IsDeleted && c.StoreId == storeId);
             if (hasSubCategories)
-                return false; // Cannot delete category with subcategories
-
+                return false;
             category.IsDeleted = true;
-            category.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> ToggleCategoryStatusAsync(int id)
+        public async Task<bool> ToggleCategoryStatusAsync(int id, int storeId)
         {
             var category = await _context.StoreCategories
-                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted);
-
+                .FirstOrDefaultAsync(c => c.Id == id && !c.IsDeleted && c.StoreId == storeId);
             if (category == null)
                 return false;
-
             category.IsActive = !category.IsActive;
-            category.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
             return true;
         }
         #endregion
 
         #region Filters
-        public async Task<List<FilterDto>> GetAllFiltersAsync()
+        public async Task<List<FilterDto>> GetAllFiltersAsync(int storeId)
         {
             var filters = await _context.StoreFilters
-                .Where(f => !f.IsDeleted)
+                .Where(f => !f.IsDeleted && f.StoreId == storeId)
                 .OrderBy(f => f.DisplayOrder)
                 .ThenBy(f => f.Name)
                 .ToListAsync();
-
             return filters.Select(MapToFilterDto).ToList();
         }
 
-        public async Task<FilterDto?> GetFilterByIdAsync(int id)
+        public async Task<FilterDto?> GetFilterByIdAsync(int id, int storeId)
         {
             var filter = await _context.StoreFilters
-                .FirstOrDefaultAsync(f => f.Id == id && !f.IsDeleted);
-
+                .FirstOrDefaultAsync(f => f.Id == id && !f.IsDeleted && f.StoreId == storeId);
             return filter != null ? MapToFilterDto(filter) : null;
         }
 
-        public async Task<FilterDto> CreateFilterAsync(CreateFilterRequest request)
+        public async Task<FilterDto> CreateFilterAsync(CreateFilterRequest request, int storeId)
         {
             var filter = new StoreFilter
             {
                 Name = request.Name,
                 Description = request.Description,
+                Options = System.Text.Json.JsonSerializer.Serialize(request.Options),
                 Type = request.Type,
                 SelectionType = request.SelectionType,
                 DisplayOrder = request.DisplayOrder,
-                IsActive = true
+                IsActive = true,
+                StoreId = storeId
             };
-
-            filter.SetOptions(request.Options);
-
             _context.StoreFilters.Add(filter);
             await _context.SaveChangesAsync();
-
-            return MapToFilterDto(filter);
+            return await GetFilterByIdAsync(filter.Id, storeId) ?? MapToFilterDto(filter);
         }
 
-        public async Task<FilterDto?> UpdateFilterAsync(int id, UpdateFilterRequest request)
+        public async Task<FilterDto?> UpdateFilterAsync(int id, UpdateFilterRequest request, int storeId)
         {
             var filter = await _context.StoreFilters
-                .FirstOrDefaultAsync(f => f.Id == id && !f.IsDeleted);
-
+                .FirstOrDefaultAsync(f => f.Id == id && !f.IsDeleted && f.StoreId == storeId);
             if (filter == null)
                 return null;
-
             filter.Name = request.Name;
             filter.Description = request.Description;
+            filter.Options = System.Text.Json.JsonSerializer.Serialize(request.Options);
             filter.Type = request.Type;
             filter.SelectionType = request.SelectionType;
             filter.DisplayOrder = request.DisplayOrder;
             filter.IsActive = request.IsActive;
             filter.UpdatedAt = DateTime.UtcNow;
-
-            filter.SetOptions(request.Options);
-
             await _context.SaveChangesAsync();
-
-            return MapToFilterDto(filter);
+            return await GetFilterByIdAsync(filter.Id, storeId);
         }
 
-        public async Task<bool> DeleteFilterAsync(int id)
+        public async Task<bool> DeleteFilterAsync(int id, int storeId)
         {
             var filter = await _context.StoreFilters
-                .FirstOrDefaultAsync(f => f.Id == id && !f.IsDeleted);
-
+                .FirstOrDefaultAsync(f => f.Id == id && !f.IsDeleted && f.StoreId == storeId);
             if (filter == null)
                 return false;
-
             filter.IsDeleted = true;
-            filter.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> ToggleFilterStatusAsync(int id)
+        public async Task<bool> ToggleFilterStatusAsync(int id, int storeId)
         {
             var filter = await _context.StoreFilters
-                .FirstOrDefaultAsync(f => f.Id == id && !f.IsDeleted);
-
+                .FirstOrDefaultAsync(f => f.Id == id && !f.IsDeleted && f.StoreId == storeId);
             if (filter == null)
                 return false;
-
             filter.IsActive = !filter.IsActive;
-            filter.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
             return true;
         }
         #endregion
 
         #region Banners
-        public async Task<List<BannerDto>> GetAllBannersAsync()
+        public async Task<List<BannerDto>> GetAllBannersAsync(int storeId)
         {
             var banners = await _context.StoreBanners
-                .Where(b => !b.IsDeleted)
+                .Where(b => !b.IsDeleted && b.StoreId == storeId)
                 .OrderBy(b => b.DisplayOrder)
                 .ThenBy(b => b.CreatedAt)
                 .ToListAsync();
-
             return banners.Select(MapToBannerDto).ToList();
         }
 
-        public async Task<BannerDto?> GetBannerByIdAsync(int id)
+        public async Task<BannerDto?> GetBannerByIdAsync(int id, int storeId)
         {
             var banner = await _context.StoreBanners
-                .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
-
+                .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted && b.StoreId == storeId);
             return banner != null ? MapToBannerDto(banner) : null;
         }
 
-        public async Task<BannerDto> CreateBannerAsync(CreateBannerRequest request)
+        public async Task<BannerDto> CreateBannerAsync(CreateBannerRequest request, int storeId)
         {
             var banner = new StoreBanner
             {
@@ -242,61 +205,50 @@ namespace Fashion.Service.Store
                 ImageUrl = request.ImageUrl,
                 LinkUrl = request.LinkUrl,
                 DisplayOrder = request.DisplayOrder,
-                IsActive = true
+                IsActive = true,
+                StoreId = storeId
             };
-
             _context.StoreBanners.Add(banner);
             await _context.SaveChangesAsync();
-
-            return MapToBannerDto(banner);
+            return await GetBannerByIdAsync(banner.Id, storeId) ?? MapToBannerDto(banner);
         }
 
-        public async Task<BannerDto?> UpdateBannerAsync(int id, UpdateBannerRequest request)
+        public async Task<BannerDto?> UpdateBannerAsync(int id, UpdateBannerRequest request, int storeId)
         {
             var banner = await _context.StoreBanners
-                .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
-
+                .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted && b.StoreId == storeId);
             if (banner == null)
                 return null;
-
             banner.Name = request.Name;
             banner.ImageUrl = request.ImageUrl;
             banner.LinkUrl = request.LinkUrl;
             banner.DisplayOrder = request.DisplayOrder;
             banner.IsActive = request.IsActive;
             banner.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
-
-            return MapToBannerDto(banner);
+            return await GetBannerByIdAsync(banner.Id, storeId);
         }
 
-        public async Task<bool> DeleteBannerAsync(int id)
+        public async Task<bool> DeleteBannerAsync(int id, int storeId)
         {
             var banner = await _context.StoreBanners
-                .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
-
+                .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted && b.StoreId == storeId);
             if (banner == null)
                 return false;
-
             banner.IsDeleted = true;
             banner.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> ToggleBannerStatusAsync(int id)
+        public async Task<bool> ToggleBannerStatusAsync(int id, int storeId)
         {
             var banner = await _context.StoreBanners
-                .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted);
-
+                .FirstOrDefaultAsync(b => b.Id == id && !b.IsDeleted && b.StoreId == storeId);
             if (banner == null)
                 return false;
-
             banner.IsActive = !banner.IsActive;
             banner.UpdatedAt = DateTime.UtcNow;
-
             await _context.SaveChangesAsync();
             return true;
         }
@@ -549,6 +501,12 @@ namespace Fashion.Service.Store
             settings.Tagline = request.Tagline;
             settings.LogoUrl = request.LogoUrl;
             settings.PrimaryColor = request.PrimaryColor;
+            settings.StoreDescription = request.StoreDescription;
+            settings.SecondaryColor = request.SecondaryColor;
+            settings.ContactEmail = request.ContactEmail;
+            settings.ContactPhone = request.ContactPhone;
+            settings.StoreAddress = request.StoreAddress;
+            settings.SocialMedia = request.SocialMedia;
             settings.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
@@ -622,7 +580,13 @@ namespace Fashion.Service.Store
                 PrimaryColor = settings.PrimaryColor,
                 IsActive = settings.IsActive,
                 CreatedAt = settings.CreatedAt,
-                UpdatedAt = settings.UpdatedAt
+                UpdatedAt = settings.UpdatedAt,
+                StoreDescription = settings.StoreDescription,
+                SecondaryColor = settings.SecondaryColor,
+                ContactEmail = settings.ContactEmail,
+                ContactPhone = settings.ContactPhone,
+                StoreAddress = settings.StoreAddress,
+                SocialMedia = settings.SocialMedia
             };
         }
         #endregion

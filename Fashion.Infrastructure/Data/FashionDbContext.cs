@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Fashion.Core.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Text.Json;
 
 namespace Fashion.Infrastructure.Data
 {
@@ -142,6 +144,15 @@ namespace Fashion.Infrastructure.Data
                 .WithMany(tm => tm.HandledRequests)
                 .HasForeignKey(f => f.HandledByStaffId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            // Configure SocialMedia as JSON for StoreBrandSettings
+            var dictionaryConverter = new ValueConverter<Dictionary<string, string>?, string?>(
+                v => v == null ? null : JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+                v => v == null ? null : JsonSerializer.Deserialize<Dictionary<string, string>>(v, (JsonSerializerOptions)null)
+            );
+            modelBuilder.Entity<StoreBrandSettings>()
+                .Property(e => e.SocialMedia)
+                .HasConversion(dictionaryConverter);
         }
     }
 } 

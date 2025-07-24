@@ -231,7 +231,22 @@ namespace Fashion.Service.Authentications
                 };
             }
 
-            // Create new manager
+            // Create new StoreBrandSettings first
+            var storeBrandSettings = new Fashion.Core.Entities.StoreBrandSettings
+            {
+                StoreName = request.StoreName,
+                StoreDescription = request.StoreDescription,
+                ContactEmail = request.Email,
+                ContactPhone = request.PhoneNumber,
+                StoreAddress = request.StoreAddress,
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+            _context.StoreBrandSettings.Add(storeBrandSettings);
+            await _context.SaveChangesAsync();
+
+            // Create new manager and link to StoreBrandSettings
             var manager = new Fashion.Core.Entities.Manager
             {
                 Name = request.Name,
@@ -240,7 +255,8 @@ namespace Fashion.Service.Authentications
                 StoreName = request.StoreName,
                 StoreDescription = request.StoreDescription,
                 StoreAddress = request.StoreAddress,
-                Notes = request.Notes
+                Notes = request.Notes,
+                StoreId = storeBrandSettings.Id // Link to the new StoreBrandSettings
             };
 
             _context.Managers.Add(manager);

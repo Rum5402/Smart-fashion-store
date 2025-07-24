@@ -50,6 +50,13 @@ namespace Fashion.Core.Entities
         public SelectionType SelectionType { get; set; }
         
         /// <summary>
+        /// Store ID (required foreign key)
+        /// </summary>
+        [Required(ErrorMessage = "Store ID is required")]
+        public int StoreId { get; set; }
+        public virtual StoreBrandSettings Store { get; set; } = null!;
+        
+        /// <summary>
         /// Helper method to get filter options as list
         /// </summary>
         public List<string> GetOptions()

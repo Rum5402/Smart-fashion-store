@@ -32,6 +32,9 @@ namespace Fashion.Core.Entities
         public string? Gender { get; set; }
         public string? SkinTone { get; set; }
         
+        public int StoreId { get; set; }
+        public virtual StoreBrandSettings Store { get; set; } = null!;
+        
         // Navigation properties
         public virtual ICollection<FittingRoomRequest> FittingRoomRequests { get; set; } = new List<FittingRoomRequest>();
         public virtual ICollection<Item> SavedItems { get; set; } = new List<Item>();

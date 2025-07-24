@@ -16,7 +16,7 @@ namespace Fashion.Service.Items
             _colorDetectionService = colorDetectionService;
         }
 
-        public async Task<List<ItemDto>> GetAllItemsAsync()
+        public async Task<List<ItemDto>> GetAllItemsAsync(int storeId)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
             var categoryRepository = _unitOfWork.Repository<StoreCategory>();
@@ -24,7 +24,7 @@ namespace Fashion.Service.Items
             var items = await itemRepository.GetAllAsync();
             var categories = await categoryRepository.GetAllAsync();
             
-            var activeItems = items.Where(i => i.IsActive && !i.IsDeleted).ToList();
+            var activeItems = items.Where(i => i.IsActive && !i.IsDeleted && i.StoreId == storeId).ToList();
             
             return activeItems.Select(item => MapToDto(item, categories)).ToList();
         }
@@ -42,42 +42,33 @@ namespace Fashion.Service.Items
             return MapToDto(item, categories);
         }
 
-        public async Task<List<ItemDto>> GetNewCollectionAsync()
+        public async Task<List<ItemDto>> GetNewCollectionAsync(int storeId)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
             var categoryRepository = _unitOfWork.Repository<StoreCategory>();
-            
             var items = await itemRepository.GetAllAsync();
             var categories = await categoryRepository.GetAllAsync();
-            
-            var newCollectionItems = items.Where(i => i.IsNewCollection && i.IsActive && !i.IsDeleted).ToList();
-            
+            var newCollectionItems = items.Where(i => i.IsNewCollection && i.IsActive && !i.IsDeleted && i.StoreId == storeId).ToList();
             return newCollectionItems.Select(item => MapToDto(item, categories)).ToList();
         }
 
-        public async Task<List<ItemDto>> GetBestSellersAsync()
+        public async Task<List<ItemDto>> GetBestSellersAsync(int storeId)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
             var categoryRepository = _unitOfWork.Repository<StoreCategory>();
-            
             var items = await itemRepository.GetAllAsync();
             var categories = await categoryRepository.GetAllAsync();
-            
-            var bestSellerItems = items.Where(i => i.IsBestSeller && i.IsActive && !i.IsDeleted).ToList();
-            
+            var bestSellerItems = items.Where(i => i.IsBestSeller && i.IsActive && !i.IsDeleted && i.StoreId == storeId).ToList();
             return bestSellerItems.Select(item => MapToDto(item, categories)).ToList();
         }
 
-        public async Task<List<ItemDto>> GetOnSaleAsync()
+        public async Task<List<ItemDto>> GetOnSaleAsync(int storeId)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
             var categoryRepository = _unitOfWork.Repository<StoreCategory>();
-            
             var items = await itemRepository.GetAllAsync();
             var categories = await categoryRepository.GetAllAsync();
-            
-            var onSaleItems = items.Where(i => i.IsOnSale && i.IsActive && !i.IsDeleted).ToList();
-            
+            var onSaleItems = items.Where(i => i.IsOnSale && i.IsActive && !i.IsDeleted && i.StoreId == storeId).ToList();
             return onSaleItems.Select(item => MapToDto(item, categories)).ToList();
         }
 
@@ -198,79 +189,54 @@ namespace Fashion.Service.Items
         }
 
         // New methods for enhanced filtering
-        public async Task<List<ItemDto>> GetItemsByCategoryAsync(string category)
+        public async Task<List<ItemDto>> GetItemsByCategoryAsync(string category, int storeId)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
             var categoryRepository = _unitOfWork.Repository<StoreCategory>();
-            
             var items = await itemRepository.GetAllAsync();
             var categories = await categoryRepository.GetAllAsync();
-            
-            var categoryItems = items.Where(i => 
-                i.IsActive && !i.IsDeleted && 
-                i.Category.ToString().Equals(category, StringComparison.OrdinalIgnoreCase)).ToList();
-            
-            return categoryItems.Select(item => MapToDto(item, categories)).ToList();
+            var filtered = items.Where(i => i.Category.ToString() == category && i.IsActive && !i.IsDeleted && i.StoreId == storeId).ToList();
+            return filtered.Select(item => MapToDto(item, categories)).ToList();
         }
 
-        public async Task<List<ItemDto>> GetItemsByProductTypeAsync(string productType)
+        public async Task<List<ItemDto>> GetItemsByProductTypeAsync(string productType, int storeId)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
             var categoryRepository = _unitOfWork.Repository<StoreCategory>();
-            
             var items = await itemRepository.GetAllAsync();
             var categories = await categoryRepository.GetAllAsync();
-            
-            var productTypeItems = items.Where(i => 
-                i.IsActive && !i.IsDeleted && 
-                i.ProductType.ToString().Equals(productType, StringComparison.OrdinalIgnoreCase)).ToList();
-            
-            return productTypeItems.Select(item => MapToDto(item, categories)).ToList();
+            var filtered = items.Where(i => i.ProductType.ToString() == productType && i.IsActive && !i.IsDeleted && i.StoreId == storeId).ToList();
+            return filtered.Select(item => MapToDto(item, categories)).ToList();
         }
 
-        public async Task<List<ItemDto>> GetItemsByStyleAsync(string style)
+        public async Task<List<ItemDto>> GetItemsByStyleAsync(string style, int storeId)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
             var categoryRepository = _unitOfWork.Repository<StoreCategory>();
-            
             var items = await itemRepository.GetAllAsync();
             var categories = await categoryRepository.GetAllAsync();
-            
-            var styleItems = items.Where(i => 
-                i.IsActive && !i.IsDeleted && 
-                i.Style.ToString().Equals(style, StringComparison.OrdinalIgnoreCase)).ToList();
-            
-            return styleItems.Select(item => MapToDto(item, categories)).ToList();
+            var filtered = items.Where(i => i.Style.ToString() == style && i.IsActive && !i.IsDeleted && i.StoreId == storeId).ToList();
+            return filtered.Select(item => MapToDto(item, categories)).ToList();
         }
 
-        public async Task<List<ItemDto>> GetItemsByColorAsync(string color)
+        public async Task<List<ItemDto>> GetItemsByColorAsync(string color, int storeId)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
             var categoryRepository = _unitOfWork.Repository<StoreCategory>();
-            
             var items = await itemRepository.GetAllAsync();
             var categories = await categoryRepository.GetAllAsync();
-            
-            var colorItems = items.Where(i => 
-                i.IsActive && !i.IsDeleted && 
-                i.AvailableColors.Contains(color, StringComparison.OrdinalIgnoreCase)).ToList();
-            
-            return colorItems.Select(item => MapToDto(item, categories)).ToList();
+            var filtered = items.Where(i => i.PrimaryColor == color && i.IsActive && !i.IsDeleted && i.StoreId == storeId).ToList();
+            return filtered.Select(item => MapToDto(item, categories)).ToList();
         }
 
-        public async Task<List<ItemDto>> GetItemsByPriceRangeAsync(decimal minPrice, decimal maxPrice)
+        public async Task<List<ItemDto>> GetItemsByPriceRangeAsync(decimal minPrice, decimal maxPrice, int storeId)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
             var categoryRepository = _unitOfWork.Repository<StoreCategory>();
-            
             var items = await itemRepository.GetAllAsync();
             var categories = await categoryRepository.GetAllAsync();
-            
-            var priceRangeItems = items.Where(i => 
-                i.IsActive && !i.IsDeleted && 
-                i.Price >= minPrice && i.Price <= maxPrice).ToList();
-            
-            return priceRangeItems.Select(item => MapToDto(item, categories)).ToList();
+            var filtered = items.Where(i => i.Price >= minPrice && i.Price <= maxPrice && i.IsActive && !i.IsDeleted && i.StoreId == storeId).ToList();
+            return filtered.Select(item => MapToDto(item, categories)).ToList();
         }
 
         public async Task<Dictionary<string, int>> GetProductCountsByCategoryAsync()
@@ -353,36 +319,24 @@ namespace Fashion.Service.Items
             };
         }
 
-        public async Task<List<ItemDto>> SearchProductsAsync(string query)
+        public async Task<List<ItemDto>> SearchProductsAsync(string query, int storeId)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
             var categoryRepository = _unitOfWork.Repository<StoreCategory>();
-            
             var items = await itemRepository.GetAllAsync();
             var categories = await categoryRepository.GetAllAsync();
-            
-            var searchItems = items.Where(i => 
-                i.IsActive && !i.IsDeleted && 
-                (i.Name.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                 (i.Description != null && i.Description.Contains(query, StringComparison.OrdinalIgnoreCase)) ||
-                 (i.Tags != null && i.Tags.Contains(query, StringComparison.OrdinalIgnoreCase)))).ToList();
-            
-            return searchItems.Select(item => MapToDto(item, categories)).ToList();
+            var filtered = items.Where(i => (i.Name.Contains(query) || (i.Description != null && i.Description.Contains(query))) && i.IsActive && !i.IsDeleted && i.StoreId == storeId).ToList();
+            return filtered.Select(item => MapToDto(item, categories)).ToList();
         }
 
-        public async Task<List<ItemDto>> GetFeaturedProductsAsync()
+        public async Task<List<ItemDto>> GetFeaturedProductsAsync(int storeId)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
             var categoryRepository = _unitOfWork.Repository<StoreCategory>();
-            
             var items = await itemRepository.GetAllAsync();
             var categories = await categoryRepository.GetAllAsync();
-            
-            var featuredItems = items.Where(i => 
-                i.IsActive && !i.IsDeleted && 
-                (i.IsNewCollection || i.IsBestSeller || i.IsOnSale)).ToList();
-            
-            return featuredItems.Select(item => MapToDto(item, categories)).ToList();
+            var featured = items.Where(i => i.IsBestSeller && i.IsActive && !i.IsDeleted && i.StoreId == storeId).ToList();
+            return featured.Select(item => MapToDto(item, categories)).ToList();
         }
 
         // Mix & Match functionality
@@ -592,7 +546,7 @@ namespace Fashion.Service.Items
         public async Task<List<MixMatchCombinationDto>> GetTrendingMixMatchAsync()
         {
             // For now, return featured products as trending combinations
-            var featuredItems = await GetFeaturedProductsAsync();
+            var featuredItems = await GetFeaturedProductsAsync(0); // Assuming storeId 0 for now
             var combinations = new List<MixMatchCombinationDto>();
             
             for (int i = 0; i < featuredItems.Count - 2; i += 3)
@@ -710,29 +664,29 @@ namespace Fashion.Service.Items
 
     public interface IItemService
     {
-        Task<List<ItemDto>> GetAllItemsAsync();
+        Task<List<ItemDto>> GetAllItemsAsync(int storeId);
         Task<ItemDto?> GetItemByIdAsync(int id);
-        Task<List<ItemDto>> GetNewCollectionAsync();
-        Task<List<ItemDto>> GetBestSellersAsync();
-        Task<List<ItemDto>> GetOnSaleAsync();
+        Task<List<ItemDto>> GetNewCollectionAsync(int storeId);
+        Task<List<ItemDto>> GetBestSellersAsync(int storeId);
+        Task<List<ItemDto>> GetOnSaleAsync(int storeId);
         Task<ItemDto> CreateItemAsync(CreateItemRequest request);
         Task<ItemDto?> UpdateItemAsync(int id, UpdateItemRequest request);
         Task<bool> DeleteItemAsync(int id);
         Task<bool> ToggleItemStatusAsync(int id);
         
         // New methods for enhanced filtering
-        Task<List<ItemDto>> GetItemsByCategoryAsync(string category);
-        Task<List<ItemDto>> GetItemsByProductTypeAsync(string productType);
-        Task<List<ItemDto>> GetItemsByStyleAsync(string style);
-        Task<List<ItemDto>> GetItemsByColorAsync(string color);
-        Task<List<ItemDto>> GetItemsByPriceRangeAsync(decimal minPrice, decimal maxPrice);
+        Task<List<ItemDto>> GetItemsByCategoryAsync(string category, int storeId);
+        Task<List<ItemDto>> GetItemsByProductTypeAsync(string productType, int storeId);
+        Task<List<ItemDto>> GetItemsByStyleAsync(string style, int storeId);
+        Task<List<ItemDto>> GetItemsByColorAsync(string color, int storeId);
+        Task<List<ItemDto>> GetItemsByPriceRangeAsync(decimal minPrice, decimal maxPrice, int storeId);
         Task<Dictionary<string, int>> GetProductCountsByCategoryAsync();
         Task<Dictionary<string, int>> GetProductCountsByProductTypeAsync();
         Task<Dictionary<string, int>> GetProductCountsByStyleAsync();
         Task<Dictionary<string, int>> GetProductCountsByColorAsync();
         Task<object> GetPriceStatisticsAsync();
-        Task<List<ItemDto>> SearchProductsAsync(string query);
-        Task<List<ItemDto>> GetFeaturedProductsAsync();
+        Task<List<ItemDto>> SearchProductsAsync(string query, int storeId);
+        Task<List<ItemDto>> GetFeaturedProductsAsync(int storeId);
         
         // Mix & Match functionality
         Task<List<ItemDto>> GetMixMatchSuggestionsAsync(int baseItemId);

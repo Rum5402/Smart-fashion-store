@@ -5,28 +5,28 @@ namespace Fashion.Service.Store
     public interface IStoreControlService
     {
         // Categories
-        Task<List<CategoryDto>> GetAllCategoriesAsync();
-        Task<CategoryDto?> GetCategoryByIdAsync(int id);
-        Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequest request);
-        Task<CategoryDto?> UpdateCategoryAsync(int id, UpdateCategoryRequest request);
-        Task<bool> DeleteCategoryAsync(int id);
-        Task<bool> ToggleCategoryStatusAsync(int id);
+        Task<List<CategoryDto>> GetAllCategoriesAsync(int storeId);
+        Task<CategoryDto?> GetCategoryByIdAsync(int id, int storeId);
+        Task<CategoryDto> CreateCategoryAsync(CreateCategoryRequest request, int storeId);
+        Task<CategoryDto?> UpdateCategoryAsync(int id, UpdateCategoryRequest request, int storeId);
+        Task<bool> DeleteCategoryAsync(int id, int storeId);
+        Task<bool> ToggleCategoryStatusAsync(int id, int storeId);
         
         // Filters
-        Task<List<FilterDto>> GetAllFiltersAsync();
-        Task<FilterDto?> GetFilterByIdAsync(int id);
-        Task<FilterDto> CreateFilterAsync(CreateFilterRequest request);
-        Task<FilterDto?> UpdateFilterAsync(int id, UpdateFilterRequest request);
-        Task<bool> DeleteFilterAsync(int id);
-        Task<bool> ToggleFilterStatusAsync(int id);
+        Task<List<FilterDto>> GetAllFiltersAsync(int storeId);
+        Task<FilterDto?> GetFilterByIdAsync(int id, int storeId);
+        Task<FilterDto> CreateFilterAsync(CreateFilterRequest request, int storeId);
+        Task<FilterDto?> UpdateFilterAsync(int id, UpdateFilterRequest request, int storeId);
+        Task<bool> DeleteFilterAsync(int id, int storeId);
+        Task<bool> ToggleFilterStatusAsync(int id, int storeId);
         
         // Banners
-        Task<List<BannerDto>> GetAllBannersAsync();
-        Task<BannerDto?> GetBannerByIdAsync(int id);
-        Task<BannerDto> CreateBannerAsync(CreateBannerRequest request);
-        Task<BannerDto?> UpdateBannerAsync(int id, UpdateBannerRequest request);
-        Task<bool> DeleteBannerAsync(int id);
-        Task<bool> ToggleBannerStatusAsync(int id);
+        Task<List<BannerDto>> GetAllBannersAsync(int storeId);
+        Task<BannerDto?> GetBannerByIdAsync(int id, int storeId);
+        Task<BannerDto> CreateBannerAsync(CreateBannerRequest request, int storeId);
+        Task<BannerDto?> UpdateBannerAsync(int id, UpdateBannerRequest request, int storeId);
+        Task<bool> DeleteBannerAsync(int id, int storeId);
+        Task<bool> ToggleBannerStatusAsync(int id, int storeId);
         
         // Brand Settings
         Task<BrandSettingsDto?> GetBrandSettingsAsync();

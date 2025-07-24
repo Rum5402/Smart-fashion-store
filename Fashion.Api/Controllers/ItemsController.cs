@@ -17,10 +17,11 @@ namespace Fashion.Api.Controllers
     public class ItemsController : BaseController
     {
         private readonly IItemService _itemService;
-
-        public ItemsController(IItemService itemService)
+        private readonly Fashion.Infrastructure.Data.FashionDbContext _context;
+        public ItemsController(IItemService itemService, Fashion.Infrastructure.Data.FashionDbContext context)
         {
             _itemService = itemService;
+            _context = context;
         }
 
         /// <summary>
@@ -33,7 +34,28 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var items = await _itemService.GetAllItemsAsync();
+                int storeId;
+                var role = GetCurrentUserRole();
+                var userId = GetCurrentUserId();
+                if (role == "Manager")
+                {
+                    var manager = await _context.Managers.FindAsync(userId);
+                    if (manager == null)
+                        return ErrorResponse("Manager not found");
+                    storeId = manager.StoreId;
+                }
+                else if (role == "Customer" || role == "User")
+                {
+                    var user = await _context.Users.FindAsync(userId);
+                    if (user == null)
+                        return ErrorResponse("User not found");
+                    storeId = user.StoreId;
+                }
+                else
+                {
+                    return ErrorResponse("User role not supported for product listing");
+                }
+                var items = await _itemService.GetAllItemsAsync(storeId);
                 return SuccessResponse(items, "Products retrieved successfully", items.Count);
             }
             catch (Exception ex)
@@ -65,6 +87,23 @@ namespace Fashion.Api.Controllers
             }
         }
 
+        private async Task<int?> GetCurrentStoreIdAsync()
+        {
+            var role = GetCurrentUserRole();
+            var userId = GetCurrentUserId();
+            if (role == "Manager")
+            {
+                var manager = await _context.Managers.FindAsync(userId);
+                return manager?.StoreId;
+            }
+            else if (role == "Customer" || role == "User")
+            {
+                var user = await _context.Users.FindAsync(userId);
+                return user?.StoreId;
+            }
+            return null;
+        }
+
         /// <summary>
         /// Get new collection products
         /// </summary>
@@ -75,14 +114,11 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var items = await _itemService.GetNewCollectionAsync();
-                return Ok(new 
-                { 
-                    success = true, 
-                    message = "New collection products retrieved successfully",
-                    data = items,
-                    totalCount = items.Count
-                });
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var items = await _itemService.GetNewCollectionAsync(storeId.Value);
+                return Ok(new { success = true, message = "New collection products retrieved successfully", data = items, totalCount = items.Count });
             }
             catch (Exception ex)
             {
@@ -100,14 +136,11 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var items = await _itemService.GetBestSellersAsync();
-                return Ok(new 
-                { 
-                    success = true, 
-                    message = "Best sellers products retrieved successfully",
-                    data = items,
-                    totalCount = items.Count
-                });
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var items = await _itemService.GetBestSellersAsync(storeId.Value);
+                return Ok(new { success = true, message = "Best sellers products retrieved successfully", data = items, totalCount = items.Count });
             }
             catch (Exception ex)
             {
@@ -125,18 +158,15 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var items = await _itemService.GetOnSaleAsync();
-                return Ok(new 
-                { 
-                    success = true, 
-                    message = "Products on sale retrieved successfully",
-                    data = items,
-                    totalCount = items.Count
-                });
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var items = await _itemService.GetOnSaleAsync(storeId.Value);
+                return Ok(new { success = true, message = "On sale products retrieved successfully", data = items, totalCount = items.Count });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, error = "Error retrieving products on sale", details = ex.Message });
+                return StatusCode(500, new { success = false, error = "Error retrieving on sale products", details = ex.Message });
             }
         }
 
@@ -150,14 +180,11 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var items = await _itemService.GetItemsByCategoryAsync(category);
-                return Ok(new 
-                { 
-                    success = true, 
-                    message = $"Products for {category} retrieved successfully",
-                    data = items,
-                    totalCount = items.Count
-                });
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var items = await _itemService.GetItemsByCategoryAsync(category, storeId.Value);
+                return Ok(new { success = true, message = "Products by category retrieved successfully", data = items, totalCount = items.Count });
             }
             catch (Exception ex)
             {
@@ -175,18 +202,15 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var items = await _itemService.GetItemsByProductTypeAsync(productType);
-                return Ok(new 
-                { 
-                    success = true, 
-                    message = $"Products of type {productType} retrieved successfully",
-                    data = items,
-                    totalCount = items.Count
-                });
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var items = await _itemService.GetItemsByProductTypeAsync(productType, storeId.Value);
+                return Ok(new { success = true, message = "Products by product type retrieved successfully", data = items, totalCount = items.Count });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { success = false, error = "Error retrieving products by type", details = ex.Message });
+                return StatusCode(500, new { success = false, error = "Error retrieving products by product type", details = ex.Message });
             }
         }
 
@@ -200,14 +224,11 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var items = await _itemService.GetItemsByStyleAsync(style);
-                return Ok(new 
-                { 
-                    success = true, 
-                    message = $"Products with style {style} retrieved successfully",
-                    data = items,
-                    totalCount = items.Count
-                });
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var items = await _itemService.GetItemsByStyleAsync(style, storeId.Value);
+                return Ok(new { success = true, message = "Products by style retrieved successfully", data = items, totalCount = items.Count });
             }
             catch (Exception ex)
             {
@@ -225,14 +246,11 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var items = await _itemService.GetItemsByColorAsync(color);
-                return Ok(new 
-                { 
-                    success = true, 
-                    message = $"Products with color {color} retrieved successfully",
-                    data = items,
-                    totalCount = items.Count
-                });
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var items = await _itemService.GetItemsByColorAsync(color, storeId.Value);
+                return Ok(new { success = true, message = "Products by color retrieved successfully", data = items, totalCount = items.Count });
             }
             catch (Exception ex)
             {
@@ -250,14 +268,11 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var items = await _itemService.GetItemsByPriceRangeAsync(minPrice, maxPrice);
-                return Ok(new 
-                { 
-                    success = true, 
-                    message = $"Products in price range {minPrice} - {maxPrice} EGP retrieved successfully",
-                    data = items,
-                    totalCount = items.Count
-                });
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var items = await _itemService.GetItemsByPriceRangeAsync(minPrice, maxPrice, storeId.Value);
+                return Ok(new { success = true, message = "Products by price range retrieved successfully", data = items, totalCount = items.Count });
             }
             catch (Exception ex)
             {
@@ -395,14 +410,11 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var items = await _itemService.SearchProductsAsync(query);
-                return Ok(new 
-                { 
-                    success = true, 
-                    message = $"Search results for '{query}' retrieved successfully",
-                    data = items,
-                    totalCount = items.Count
-                });
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var items = await _itemService.SearchProductsAsync(query, storeId.Value);
+                return Ok(new { success = true, message = "Search results retrieved successfully", data = items, totalCount = items.Count });
             }
             catch (Exception ex)
             {
@@ -420,14 +432,11 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var items = await _itemService.GetFeaturedProductsAsync();
-                return Ok(new 
-                { 
-                    success = true, 
-                    message = "Featured products retrieved successfully",
-                    data = items,
-                    totalCount = items.Count
-                });
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var items = await _itemService.GetFeaturedProductsAsync(storeId.Value);
+                return Ok(new { success = true, message = "Featured products retrieved successfully", data = items, totalCount = items.Count });
             }
             catch (Exception ex)
             {

@@ -55,5 +55,8 @@ namespace Fashion.Core.Entities
         /// Navigation property for items in this category
         /// </summary>
         public virtual ICollection<Item> Items { get; set; } = new List<Item>();
+
+        public int StoreId { get; set; }
+        public virtual StoreBrandSettings Store { get; set; } = null!;
     }
 } 

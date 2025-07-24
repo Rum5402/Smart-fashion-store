@@ -41,6 +41,9 @@ namespace Fashion.Core.Entities
         [MaxLength(500)]
         public string? ProfileImageUrl { get; set; }
         
+        public int StoreId { get; set; }
+        public virtual StoreBrandSettings Store { get; set; } = null!;
+        
         // Navigation properties
         public virtual ICollection<TeamMember> TeamMembers { get; set; } = new List<TeamMember>();
     }

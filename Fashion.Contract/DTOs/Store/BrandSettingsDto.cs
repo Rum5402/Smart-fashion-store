@@ -44,5 +44,15 @@ namespace Fashion.Contract.DTOs.Store
         /// When the brand settings were last updated
         /// </summary>
         public DateTime? UpdatedAt { get; set; }
+
+        public string? StoreDescription { get; set; }
+        public string? SecondaryColor { get; set; }
+        public string? ContactEmail { get; set; }
+        public string? ContactPhone { get; set; }
+        public string? StoreAddress { get; set; }
+        /// <summary>
+        /// Social media links (as key-value pairs, e.g., facebook, instagram, twitter)
+        /// </summary>
+        public Dictionary<string, string>? SocialMedia { get; set; }
     }
 } 

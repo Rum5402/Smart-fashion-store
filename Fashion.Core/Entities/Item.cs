@@ -70,6 +70,9 @@ namespace Fashion.Core.Entities
         /// </summary>
         public int? StoreCategoryId { get; set; }
         
+        public int StoreId { get; set; }
+        public virtual StoreBrandSettings Store { get; set; } = null!;
+        
         // Navigation properties
         public virtual StoreCategory? CategoryEntity { get; set; }
         public virtual ICollection<User> SavedByUsers { get; set; } = new List<User>();

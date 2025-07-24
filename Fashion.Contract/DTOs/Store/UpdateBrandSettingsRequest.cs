@@ -32,5 +32,27 @@ namespace Fashion.Contract.DTOs.Store
         [RegularExpression(@"^#[0-9A-Fa-f]{6}$", 
             ErrorMessage = "Primary color must be a valid hex color code (e.g., #FF0000)")]
         public string? PrimaryColor { get; set; }
+
+        [MaxLength(500, ErrorMessage = "Store description cannot exceed 500 characters")]
+        public string? StoreDescription { get; set; }
+
+        [MaxLength(7, ErrorMessage = "Secondary color must be a valid hex color code")]
+        [RegularExpression(@"^#[0-9A-Fa-f]{6}$", ErrorMessage = "Secondary color must be a valid hex color code (e.g., #FF0000)")]
+        public string? SecondaryColor { get; set; }
+
+        [MaxLength(100, ErrorMessage = "Contact email cannot exceed 100 characters")]
+        [EmailAddress(ErrorMessage = "Please enter a valid email address")]
+        public string? ContactEmail { get; set; }
+
+        [MaxLength(20, ErrorMessage = "Contact phone cannot exceed 20 characters")]
+        public string? ContactPhone { get; set; }
+
+        [MaxLength(200, ErrorMessage = "Store address cannot exceed 200 characters")]
+        public string? StoreAddress { get; set; }
+
+        /// <summary>
+        /// Social media links (as key-value pairs, e.g., facebook, instagram, twitter)
+        /// </summary>
+        public Dictionary<string, string>? SocialMedia { get; set; }
     }
 } 

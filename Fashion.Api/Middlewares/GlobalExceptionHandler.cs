@@ -25,11 +25,23 @@ namespace Fashion.Api.Middlewares
         {
             _logger.LogError(exception, "An unhandled exception occurred: {Message}", exception.Message);
 
+            var env = httpContext.RequestServices.GetService<IWebHostEnvironment>();
+            var isDev = env != null && env.IsDevelopment();
+            var details = exception.Message;
+            if (isDev && exception.InnerException != null)
+            {
+                details += " | Inner: " + exception.InnerException.Message;
+            }
+            if (isDev && exception.StackTrace != null)
+            {
+                details += "\nStackTrace: " + exception.StackTrace;
+            }
+
             var response = new ApiResponse
             {
                 Success = false,
                 Error = "An unexpected error occurred",
-                Details = httpContext.RequestServices.GetService<IWebHostEnvironment>()?.IsDevelopment() == true ? exception.Message : null
+                Details = isDev ? details : null
             };
 
             httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;

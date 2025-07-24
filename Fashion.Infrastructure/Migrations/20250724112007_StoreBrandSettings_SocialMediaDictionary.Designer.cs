@@ -4,6 +4,7 @@ using Fashion.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fashion.Infrastructure.Migrations
 {
     [DbContext(typeof(FashionDbContext))]
-    partial class FashionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250724112007_StoreBrandSettings_SocialMediaDictionary")]
+    partial class StoreBrandSettings_SocialMediaDictionary
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -198,9 +201,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<int?>("StoreCategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Style")
                         .HasColumnType("int");
 
@@ -220,8 +220,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("StoreCategoryId");
-
-                    b.HasIndex("StoreId");
 
                     b.ToTable("Items");
                 });
@@ -284,9 +282,6 @@ namespace Fashion.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
                     b.Property<string>("StoreName")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
@@ -295,8 +290,6 @@ namespace Fashion.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StoreId");
 
                     b.ToTable("Managers");
                 });
@@ -451,15 +444,10 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<DateTime?>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StoreId");
 
                     b.ToTable("StoreBanners");
                 });
@@ -565,17 +553,12 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<int?>("ParentCategoryId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ParentCategoryId");
-
-                    b.HasIndex("StoreId");
 
                     b.ToTable("StoreCategories");
                 });
@@ -616,9 +599,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<int>("SelectionType")
                         .HasColumnType("int");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Type")
                         .HasColumnType("int");
 
@@ -626,8 +606,6 @@ namespace Fashion.Infrastructure.Migrations
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StoreId");
 
                     b.ToTable("StoreFilters");
                 });
@@ -659,15 +637,10 @@ namespace Fashion.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StoreId");
 
                     b.ToTable("StoreSettings");
                 });
@@ -789,9 +762,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<string>("SkinTone")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -799,8 +769,6 @@ namespace Fashion.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("StoreId");
 
                     b.ToTable("Users");
                 });
@@ -893,26 +861,7 @@ namespace Fashion.Infrastructure.Migrations
                         .HasForeignKey("StoreCategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
 
-                    b.HasOne("Fashion.Core.Entities.StoreBrandSettings", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("CategoryEntity");
-
-                    b.Navigation("Store");
-                });
-
-            modelBuilder.Entity("Fashion.Core.Entities.Manager", b =>
-                {
-                    b.HasOne("Fashion.Core.Entities.StoreBrandSettings", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("Fashion.Core.Entities.Notification", b =>
@@ -943,17 +892,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Navigation("Item");
                 });
 
-            modelBuilder.Entity("Fashion.Core.Entities.StoreBanner", b =>
-                {
-                    b.HasOne("Fashion.Core.Entities.StoreBrandSettings", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Store");
-                });
-
             modelBuilder.Entity("Fashion.Core.Entities.StoreCategory", b =>
                 {
                     b.HasOne("Fashion.Core.Entities.StoreCategory", "ParentCategory")
@@ -961,37 +899,7 @@ namespace Fashion.Infrastructure.Migrations
                         .HasForeignKey("ParentCategoryId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Fashion.Core.Entities.StoreBrandSettings", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("ParentCategory");
-
-                    b.Navigation("Store");
-                });
-
-            modelBuilder.Entity("Fashion.Core.Entities.StoreFilter", b =>
-                {
-                    b.HasOne("Fashion.Core.Entities.StoreBrandSettings", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Store");
-                });
-
-            modelBuilder.Entity("Fashion.Core.Entities.StoreSettings", b =>
-                {
-                    b.HasOne("Fashion.Core.Entities.StoreBrandSettings", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("Fashion.Core.Entities.TeamMember", b =>
@@ -1007,17 +915,6 @@ namespace Fashion.Infrastructure.Migrations
                         .HasForeignKey("ManagerId1");
 
                     b.Navigation("Manager");
-                });
-
-            modelBuilder.Entity("Fashion.Core.Entities.User", b =>
-                {
-                    b.HasOne("Fashion.Core.Entities.StoreBrandSettings", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("Fashion.Core.Entities.WishlistItem", b =>

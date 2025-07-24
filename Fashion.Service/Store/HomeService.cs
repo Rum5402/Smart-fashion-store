@@ -22,20 +22,20 @@ namespace Fashion.Service.Store
             _cacheService = cacheService;
         }
 
-        public async Task<HomePageDto> GetHomePageDataAsync()
+        public async Task<HomePageDto> GetHomePageDataAsync(int storeId)
         {
-            const string cacheKey = "home_page_data";
+            string cacheKey = $"home_page_data_{storeId}";
             var cacheExpiration = TimeSpan.FromMinutes(15); // Cache for 15 minutes
 
             return await _cacheService.GetOrSetAsync(cacheKey, async () =>
             {
                 // Get all required data in parallel for better performance
                 var bannersTask = _storeControlService.GetStoreBannersAsync();
-                var newCollectionTask = _itemService.GetNewCollectionAsync();
-                var bestSellersTask = _itemService.GetBestSellersAsync();
-                var onSaleTask = _itemService.GetOnSaleAsync();
+                var newCollectionTask = _itemService.GetNewCollectionAsync(storeId);
+                var bestSellersTask = _itemService.GetBestSellersAsync(storeId);
+                var onSaleTask = _itemService.GetOnSaleAsync(storeId);
                 var categoriesTask = _storeControlService.GetStoreCategoriesAsync();
-                var featuredProductsTask = _itemService.GetFeaturedProductsAsync();
+                var featuredProductsTask = _itemService.GetFeaturedProductsAsync(storeId);
                 var storeInfoTask = _storeControlService.GetStoreInfoAsync();
 
                 await Task.WhenAll(bannersTask, newCollectionTask, bestSellersTask, onSaleTask, categoriesTask, featuredProductsTask, storeInfoTask);
@@ -53,15 +53,15 @@ namespace Fashion.Service.Store
             }, cacheExpiration);
         }
 
-        public async Task<ShopByCategoryDto> GetShopByCategoryAsync(string category)
+        public async Task<ShopByCategoryDto> GetShopByCategoryAsync(string category, int storeId)
         {
-            var cacheKey = $"shop_category_{category}";
+            var cacheKey = $"shop_category_{category}_{storeId}";
             var cacheExpiration = TimeSpan.FromMinutes(10); // Cache for 10 minutes
 
             return await _cacheService.GetOrSetAsync(cacheKey, async () =>
             {
-                var products = await _itemService.GetItemsByCategoryAsync(category);
-                var filterOptions = await GetFilterOptionsForCategoryAsync(category);
+                var products = await _itemService.GetItemsByCategoryAsync(category, storeId);
+                var filterOptions = await GetFilterOptionsForCategoryAsync(category, storeId);
 
                 return new ShopByCategoryDto
                 {
@@ -73,15 +73,15 @@ namespace Fashion.Service.Store
             }, cacheExpiration);
         }
 
-        public async Task<CategoryFilterOptionsDto> GetFilterOptionsForCategoryAsync(string category)
+        public async Task<CategoryFilterOptionsDto> GetFilterOptionsForCategoryAsync(string category, int storeId)
         {
-            var cacheKey = $"filter_options_{category}";
+            var cacheKey = $"filter_options_{category}_{storeId}";
             var cacheExpiration = TimeSpan.FromMinutes(30); // Cache for 30 minutes
 
             return await _cacheService.GetOrSetAsync(cacheKey, async () =>
             {
                 // Get all products for this category
-                var categoryProducts = await _itemService.GetItemsByCategoryAsync(category);
+                var categoryProducts = await _itemService.GetItemsByCategoryAsync(category, storeId);
 
                 // Get product counts for different filter types
                 var colorCounts = await _itemService.GetProductCountsByColorAsync();
@@ -144,36 +144,36 @@ namespace Fashion.Service.Store
             }, cacheExpiration);
         }
 
-        public async Task<List<ItemDto>> GetNewCollectionAsync()
+        public async Task<List<ItemDto>> GetNewCollectionAsync(int storeId)
         {
-            const string cacheKey = "new_collection";
+            string cacheKey = $"new_collection_{storeId}";
             var cacheExpiration = TimeSpan.FromMinutes(20); // Cache for 20 minutes
 
             return await _cacheService.GetOrSetAsync(cacheKey, async () =>
             {
-                return await _itemService.GetNewCollectionAsync();
+                return await _itemService.GetNewCollectionAsync(storeId);
             }, cacheExpiration);
         }
 
-        public async Task<List<ItemDto>> GetBestSellersAsync()
+        public async Task<List<ItemDto>> GetBestSellersAsync(int storeId)
         {
-            const string cacheKey = "best_sellers";
+            string cacheKey = $"best_sellers_{storeId}";
             var cacheExpiration = TimeSpan.FromMinutes(25); // Cache for 25 minutes
 
             return await _cacheService.GetOrSetAsync(cacheKey, async () =>
             {
-                return await _itemService.GetBestSellersAsync();
+                return await _itemService.GetBestSellersAsync(storeId);
             }, cacheExpiration);
         }
 
-        public async Task<List<ItemDto>> GetOnSaleAsync()
+        public async Task<List<ItemDto>> GetOnSaleAsync(int storeId)
         {
-            const string cacheKey = "on_sale";
+            string cacheKey = $"on_sale_{storeId}";
             var cacheExpiration = TimeSpan.FromMinutes(15); // Cache for 15 minutes
 
             return await _cacheService.GetOrSetAsync(cacheKey, async () =>
             {
-                return await _itemService.GetOnSaleAsync();
+                return await _itemService.GetOnSaleAsync(storeId);
             }, cacheExpiration);
         }
 
@@ -188,14 +188,14 @@ namespace Fashion.Service.Store
             }, cacheExpiration);
         }
 
-        public async Task<List<ItemDto>> GetFeaturedProductsAsync()
+        public async Task<List<ItemDto>> GetFeaturedProductsAsync(int storeId)
         {
-            const string cacheKey = "featured_products";
+            string cacheKey = $"featured_products_{storeId}";
             var cacheExpiration = TimeSpan.FromMinutes(20); // Cache for 20 minutes
 
             return await _cacheService.GetOrSetAsync(cacheKey, async () =>
             {
-                return await _itemService.GetFeaturedProductsAsync();
+                return await _itemService.GetFeaturedProductsAsync(storeId);
             }, cacheExpiration);
         }
 

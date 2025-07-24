@@ -46,5 +46,8 @@ namespace Fashion.Core.Entities
         /// Display order for sorting banners
         /// </summary>
         public int DisplayOrder { get; set; } = 0;
+
+        public int StoreId { get; set; }
+        public virtual StoreBrandSettings Store { get; set; } = null!;
     }
 } 

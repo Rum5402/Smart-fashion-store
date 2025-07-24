@@ -12,14 +12,33 @@ namespace Fashion.Api.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin,Manager")]
-    public class StoreController : ControllerBase
+    [Authorize(Roles = "Manager")]
+    public class StoreController : BaseController
     {
         private readonly IStoreControlService _storeControlService;
+        private readonly Fashion.Infrastructure.Data.FashionDbContext _context;
 
-        public StoreController(IStoreControlService storeControlService)
+        public StoreController(IStoreControlService storeControlService, Fashion.Infrastructure.Data.FashionDbContext context)
         {
             _storeControlService = storeControlService;
+            _context = context;
+        }
+
+        private async Task<int?> GetCurrentStoreIdAsync()
+        {
+            var role = GetCurrentUserRole();
+            var userId = GetCurrentUserId();
+            if (role == "Manager")
+            {
+                var manager = await _context.Managers.FindAsync(userId);
+                return manager?.StoreId;
+            }
+            else if (role == "Customer" || role == "User")
+            {
+                var user = await _context.Users.FindAsync(userId);
+                return user?.StoreId;
+            }
+            return null;
         }
 
         #region Categories Management
@@ -32,7 +51,10 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var categories = await _storeControlService.GetAllCategoriesAsync();
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var categories = await _storeControlService.GetAllCategoriesAsync(storeId.Value);
                 return Ok(ApiResponse<List<CategoryDto>>.SuccessResponse(categories, "Categories retrieved successfully", categories.Count));
             }
             catch (Exception ex)
@@ -49,7 +71,10 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var category = await _storeControlService.GetCategoryByIdAsync(id);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var category = await _storeControlService.GetCategoryByIdAsync(id, storeId.Value);
                 if (category == null)
                     return NotFound(ApiResponse<CategoryDto>.ErrorResponse("Category not found"));
 
@@ -71,8 +96,10 @@ namespace Fashion.Api.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ApiResponse<CategoryDto>.ErrorResponse("Invalid request data"));
-
-                var category = await _storeControlService.CreateCategoryAsync(request);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var category = await _storeControlService.CreateCategoryAsync(request, storeId.Value);
                 return CreatedAtAction(nameof(GetCategoryById), new { id = category.Id }, 
                     ApiResponse<CategoryDto>.SuccessResponse(category, "Category created successfully"));
             }
@@ -92,8 +119,10 @@ namespace Fashion.Api.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ApiResponse<CategoryDto>.ErrorResponse("Invalid request data"));
-
-                var category = await _storeControlService.UpdateCategoryAsync(id, request);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var category = await _storeControlService.UpdateCategoryAsync(id, request, storeId.Value);
                 if (category == null)
                     return NotFound(ApiResponse<CategoryDto>.ErrorResponse("Category not found"));
 
@@ -113,15 +142,18 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var result = await _storeControlService.DeleteCategoryAsync(id);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var result = await _storeControlService.DeleteCategoryAsync(id, storeId.Value);
                 if (!result)
-                    return NotFound(ApiResponse<bool>.ErrorResponse("Category not found or has subcategories"));
+                    return NotFound(ApiResponse.ErrorResponse("Category not found or cannot be deleted"));
 
-                return Ok(ApiResponse<bool>.SuccessResponse(true, "Category deleted successfully"));
+                return Ok(ApiResponse.SuccessResponse("Category deleted successfully"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error deleting category", ex.Message));
+                return StatusCode(500, ApiResponse.ErrorResponse("Error deleting category", ex.Message));
             }
         }
 
@@ -133,15 +165,18 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var result = await _storeControlService.ToggleCategoryStatusAsync(id);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var result = await _storeControlService.ToggleCategoryStatusAsync(id, storeId.Value);
                 if (!result)
-                    return NotFound(ApiResponse<bool>.ErrorResponse("Category not found"));
+                    return NotFound(ApiResponse.ErrorResponse("Category not found"));
 
-                return Ok(ApiResponse<bool>.SuccessResponse(true, "Category status toggled successfully"));
+                return Ok(ApiResponse.SuccessResponse("Category status toggled successfully"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error toggling category status", ex.Message));
+                return StatusCode(500, ApiResponse.ErrorResponse("Error toggling category status", ex.Message));
             }
         }
 
@@ -157,7 +192,10 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var filters = await _storeControlService.GetAllFiltersAsync();
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var filters = await _storeControlService.GetAllFiltersAsync(storeId.Value);
                 return Ok(ApiResponse<List<FilterDto>>.SuccessResponse(filters, "Filters retrieved successfully", filters.Count));
             }
             catch (Exception ex)
@@ -174,7 +212,10 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var filter = await _storeControlService.GetFilterByIdAsync(id);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var filter = await _storeControlService.GetFilterByIdAsync(id, storeId.Value);
                 if (filter == null)
                     return NotFound(ApiResponse<FilterDto>.ErrorResponse("Filter not found"));
 
@@ -196,8 +237,10 @@ namespace Fashion.Api.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ApiResponse<FilterDto>.ErrorResponse("Invalid request data"));
-
-                var filter = await _storeControlService.CreateFilterAsync(request);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var filter = await _storeControlService.CreateFilterAsync(request, storeId.Value);
                 return CreatedAtAction(nameof(GetFilterById), new { id = filter.Id }, 
                     ApiResponse<FilterDto>.SuccessResponse(filter, "Filter created successfully"));
             }
@@ -217,8 +260,10 @@ namespace Fashion.Api.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ApiResponse<FilterDto>.ErrorResponse("Invalid request data"));
-
-                var filter = await _storeControlService.UpdateFilterAsync(id, request);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var filter = await _storeControlService.UpdateFilterAsync(id, request, storeId.Value);
                 if (filter == null)
                     return NotFound(ApiResponse<FilterDto>.ErrorResponse("Filter not found"));
 
@@ -238,15 +283,18 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var result = await _storeControlService.DeleteFilterAsync(id);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var result = await _storeControlService.DeleteFilterAsync(id, storeId.Value);
                 if (!result)
-                    return NotFound(ApiResponse<bool>.ErrorResponse("Filter not found"));
+                    return NotFound(ApiResponse.ErrorResponse("Filter not found or cannot be deleted"));
 
-                return Ok(ApiResponse<bool>.SuccessResponse(true, "Filter deleted successfully"));
+                return Ok(ApiResponse.SuccessResponse("Filter deleted successfully"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error deleting filter", ex.Message));
+                return StatusCode(500, ApiResponse.ErrorResponse("Error deleting filter", ex.Message));
             }
         }
 
@@ -258,15 +306,18 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var result = await _storeControlService.ToggleFilterStatusAsync(id);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var result = await _storeControlService.ToggleFilterStatusAsync(id, storeId.Value);
                 if (!result)
-                    return NotFound(ApiResponse<bool>.ErrorResponse("Filter not found"));
+                    return NotFound(ApiResponse.ErrorResponse("Filter not found"));
 
-                return Ok(ApiResponse<bool>.SuccessResponse(true, "Filter status toggled successfully"));
+                return Ok(ApiResponse.SuccessResponse("Filter status toggled successfully"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error toggling filter status", ex.Message));
+                return StatusCode(500, ApiResponse.ErrorResponse("Error toggling filter status", ex.Message));
             }
         }
 
@@ -282,7 +333,10 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var banners = await _storeControlService.GetAllBannersAsync();
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var banners = await _storeControlService.GetAllBannersAsync(storeId.Value);
                 return Ok(ApiResponse<List<BannerDto>>.SuccessResponse(banners, "Banners retrieved successfully", banners.Count));
             }
             catch (Exception ex)
@@ -299,7 +353,10 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var banner = await _storeControlService.GetBannerByIdAsync(id);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var banner = await _storeControlService.GetBannerByIdAsync(id, storeId.Value);
                 if (banner == null)
                     return NotFound(ApiResponse<BannerDto>.ErrorResponse("Banner not found"));
 
@@ -321,8 +378,10 @@ namespace Fashion.Api.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ApiResponse<BannerDto>.ErrorResponse("Invalid request data"));
-
-                var banner = await _storeControlService.CreateBannerAsync(request);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var banner = await _storeControlService.CreateBannerAsync(request, storeId.Value);
                 return CreatedAtAction(nameof(GetBannerById), new { id = banner.Id }, 
                     ApiResponse<BannerDto>.SuccessResponse(banner, "Banner created successfully"));
             }
@@ -342,8 +401,10 @@ namespace Fashion.Api.Controllers
             {
                 if (!ModelState.IsValid)
                     return BadRequest(ApiResponse<BannerDto>.ErrorResponse("Invalid request data"));
-
-                var banner = await _storeControlService.UpdateBannerAsync(id, request);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var banner = await _storeControlService.UpdateBannerAsync(id, request, storeId.Value);
                 if (banner == null)
                     return NotFound(ApiResponse<BannerDto>.ErrorResponse("Banner not found"));
 
@@ -363,15 +424,18 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var result = await _storeControlService.DeleteBannerAsync(id);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var result = await _storeControlService.DeleteBannerAsync(id, storeId.Value);
                 if (!result)
-                    return NotFound(ApiResponse<bool>.ErrorResponse("Banner not found"));
+                    return NotFound(ApiResponse.ErrorResponse("Banner not found or cannot be deleted"));
 
-                return Ok(ApiResponse<bool>.SuccessResponse(true, "Banner deleted successfully"));
+                return Ok(ApiResponse.SuccessResponse("Banner deleted successfully"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error deleting banner", ex.Message));
+                return StatusCode(500, ApiResponse.ErrorResponse("Error deleting banner", ex.Message));
             }
         }
 
@@ -383,15 +447,18 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var result = await _storeControlService.ToggleBannerStatusAsync(id);
+                var storeId = await GetCurrentStoreIdAsync();
+                if (storeId == null)
+                    return ErrorResponse("StoreId not found for current user");
+                var result = await _storeControlService.ToggleBannerStatusAsync(id, storeId.Value);
                 if (!result)
-                    return NotFound(ApiResponse<bool>.ErrorResponse("Banner not found"));
+                    return NotFound(ApiResponse.ErrorResponse("Banner not found"));
 
-                return Ok(ApiResponse<bool>.SuccessResponse(true, "Banner status toggled successfully"));
+                return Ok(ApiResponse.SuccessResponse("Banner status toggled successfully"));
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ApiResponse<bool>.ErrorResponse("Error toggling banner status", ex.Message));
+                return StatusCode(500, ApiResponse.ErrorResponse("Error toggling banner status", ex.Message));
             }
         }
 

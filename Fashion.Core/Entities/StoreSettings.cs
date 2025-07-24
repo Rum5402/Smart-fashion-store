@@ -14,6 +14,9 @@ namespace Fashion.Core.Entities
         
         public bool IsActive { get; set; } = true;
         
+        public int StoreId { get; set; }
+        public virtual StoreBrandSettings Store { get; set; } = null!;
+        
         // Helper methods to work with JSON
         public List<string> GetActivities()
         {

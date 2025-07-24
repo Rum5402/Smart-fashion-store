@@ -16,21 +16,23 @@ namespace Fashion.Api.Controllers
     [ApiController]
     [Route("api/manager/dashboard")]
     [AuthorizeRoles("Manager")]
-    public class ManagerDashboardController : ControllerBase
+    public class ManagerDashboardController : BaseController
     {
         private readonly IItemService _itemService;
         private readonly IJwtService _jwtService;
         private readonly IStoreManagementService _storeManagementService;
         private readonly IStoreControlService _storeControlService;
         private readonly IFittingRoomService _fittingRoomService;
+        private readonly Fashion.Infrastructure.Data.FashionDbContext _context;
 
-        public ManagerDashboardController(IItemService itemService, IJwtService jwtService, IStoreManagementService storeManagementService, IStoreControlService storeControlService, IFittingRoomService fittingRoomService)
+        public ManagerDashboardController(IItemService itemService, IJwtService jwtService, IStoreManagementService storeManagementService, IStoreControlService storeControlService, IFittingRoomService fittingRoomService, Fashion.Infrastructure.Data.FashionDbContext context)
         {
             _itemService = itemService;
             _jwtService = jwtService;
             _storeManagementService = storeManagementService;
             _storeControlService = storeControlService;
             _fittingRoomService = fittingRoomService;
+            _context = context;
         }
 
         #region Dashboard Overview
@@ -39,7 +41,12 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var allItems = await _itemService.GetAllItemsAsync();
+                var userId = GetCurrentUserId();
+                var manager = await _context.Managers.FindAsync(userId);
+                if (manager == null)
+                    return StatusCode(404, new { error = "Manager not found" });
+                int storeId = manager.StoreId;
+                var allItems = await _itemService.GetAllItemsAsync(storeId);
 
                 var overview = new
                 {
@@ -69,7 +76,12 @@ namespace Fashion.Api.Controllers
         {
             try
             {
-                var allItems = await _itemService.GetAllItemsAsync();
+                var userId = GetCurrentUserId();
+                var manager = await _context.Managers.FindAsync(userId);
+                if (manager == null)
+                    return StatusCode(404, new { error = "Manager not found" });
+                int storeId = manager.StoreId;
+                var allItems = await _itemService.GetAllItemsAsync(storeId);
 
                 var analytics = new
                 {
@@ -239,270 +251,6 @@ namespace Fashion.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { success = false, error = "Error retrieving available product styles", details = ex.Message });
-            }
-        }
-        #endregion
-
-        #region Store Control Center - Categories
-        // Note: Category retrieval endpoints are handled by StoreController
-        // Use /api/store/categories for getting categories
-
-        [HttpPost("store/categories")]
-        public async Task<IActionResult> CreateCategory([FromBody] CreateCategoryRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var category = await _storeControlService.CreateCategoryAsync(request);
-                return Created($"/api/store/categories/{category.Id}", new { success = true, message = "Category created successfully", category = category });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error creating category", details = ex.Message });
-            }
-        }
-
-        [HttpPut("store/categories/{id}")]
-        public async Task<IActionResult> UpdateCategory(int id, [FromBody] UpdateCategoryRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var category = await _storeControlService.UpdateCategoryAsync(id, request);
-                if (category == null)
-                    return NotFound(new { success = false, message = "Category not found" });
-
-                return Ok(new { success = true, message = "Category updated successfully", category = category });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error updating category", details = ex.Message });
-            }
-        }
-
-        [HttpDelete("store/categories/{id}")]
-        public async Task<IActionResult> DeleteCategory(int id)
-        {
-            try
-            {
-                var success = await _storeControlService.DeleteCategoryAsync(id);
-                if (!success)
-                    return NotFound(new { success = false, message = "Category not found or has subcategories" });
-
-                return Ok(new { success = true, message = "Category deleted successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error deleting category", details = ex.Message });
-            }
-        }
-
-        [HttpPut("store/categories/{id}/toggle-status")]
-        public async Task<IActionResult> ToggleCategoryStatus(int id)
-        {
-            try
-            {
-                var success = await _storeControlService.ToggleCategoryStatusAsync(id);
-                if (!success)
-                    return NotFound(new { success = false, message = "Category not found" });
-
-                return Ok(new { success = true, message = "Category status toggled successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error toggling category status", details = ex.Message });
-            }
-        }
-        #endregion
-
-        #region Store Control Center - Filters
-        // Note: Filter retrieval endpoints are handled by StoreController
-        // Use /api/store/filters for getting filters
-
-        [HttpPost("store/filters")]
-        public async Task<IActionResult> CreateFilter([FromBody] CreateFilterRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var filter = await _storeControlService.CreateFilterAsync(request);
-                return Created($"/api/store/filters/{filter.Id}", new { success = true, message = "Filter created successfully", filter = filter });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error creating filter", details = ex.Message });
-            }
-        }
-
-        [HttpPut("store/filters/{id}")]
-        public async Task<IActionResult> UpdateFilter(int id, [FromBody] UpdateFilterRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var filter = await _storeControlService.UpdateFilterAsync(id, request);
-                if (filter == null)
-                    return NotFound(new { success = false, message = "Filter not found" });
-
-                return Ok(new { success = true, message = "Filter updated successfully", filter = filter });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error updating filter", details = ex.Message });
-            }
-        }
-
-        [HttpDelete("store/filters/{id}")]
-        public async Task<IActionResult> DeleteFilter(int id)
-        {
-            try
-            {
-                var success = await _storeControlService.DeleteFilterAsync(id);
-                if (!success)
-                    return NotFound(new { success = false, message = "Filter not found" });
-
-                return Ok(new { success = true, message = "Filter deleted successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error deleting filter", details = ex.Message });
-            }
-        }
-
-        [HttpPut("store/filters/{id}/toggle-status")]
-        public async Task<IActionResult> ToggleFilterStatus(int id)
-        {
-            try
-            {
-                var success = await _storeControlService.ToggleFilterStatusAsync(id);
-                if (!success)
-                    return NotFound(new { success = false, message = "Filter not found" });
-
-                return Ok(new { success = true, message = "Filter status toggled successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error toggling filter status", details = ex.Message });
-            }
-        }
-        #endregion
-
-        #region Store Control Center - Banners
-        // Note: Banner retrieval endpoints are handled by StoreController
-        // Use /api/store/banners for getting banners
-
-        [HttpPost("store/banners")]
-        public async Task<IActionResult> CreateBanner([FromBody] CreateBannerRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var banner = await _storeControlService.CreateBannerAsync(request);
-                return Created($"/api/store/banners/{banner.Id}", new { success = true, message = "Banner created successfully", banner = banner });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error creating banner", details = ex.Message });
-            }
-        }
-
-        [HttpPut("store/banners/{id}")]
-        public async Task<IActionResult> UpdateBanner(int id, [FromBody] UpdateBannerRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var banner = await _storeControlService.UpdateBannerAsync(id, request);
-                if (banner == null)
-                    return NotFound(new { success = false, message = "Banner not found" });
-
-                return Ok(new { success = true, message = "Banner updated successfully", banner = banner });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error updating banner", details = ex.Message });
-            }
-        }
-
-        [HttpDelete("store/banners/{id}")]
-        public async Task<IActionResult> DeleteBanner(int id)
-        {
-            try
-            {
-                var success = await _storeControlService.DeleteBannerAsync(id);
-                if (!success)
-                    return NotFound(new { success = false, message = "Banner not found" });
-
-                return Ok(new { success = true, message = "Banner deleted successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error deleting banner", details = ex.Message });
-            }
-        }
-
-        [HttpPut("store/banners/{id}/toggle-status")]
-        public async Task<IActionResult> ToggleBannerStatus(int id)
-        {
-            try
-            {
-                var success = await _storeControlService.ToggleBannerStatusAsync(id);
-                if (!success)
-                    return NotFound(new { success = false, message = "Banner not found" });
-
-                return Ok(new { success = true, message = "Banner status toggled successfully" });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error toggling banner status", details = ex.Message });
-            }
-        }
-        #endregion
-
-        #region Store Control Center - Brand Settings
-        [HttpGet("store/brand-settings")]
-        public async Task<IActionResult> GetBrandSettings()
-        {
-            try
-            {
-                var settings = await _storeControlService.GetBrandSettingsAsync();
-                if (settings == null)
-                    return NotFound(new { success = false, message = "Brand settings not found" });
-
-                return Ok(new { success = true, settings = settings });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error retrieving brand settings", details = ex.Message });
-            }
-        }
-
-        [HttpPut("store/brand-settings")]
-        public async Task<IActionResult> UpdateBrandSettings([FromBody] UpdateBrandSettingsRequest request)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            try
-            {
-                var settings = await _storeControlService.UpdateBrandSettingsAsync(request);
-                return Ok(new { success = true, message = "Brand settings updated successfully", settings = settings });
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, new { success = false, error = "Error updating brand settings", details = ex.Message });
             }
         }
         #endregion

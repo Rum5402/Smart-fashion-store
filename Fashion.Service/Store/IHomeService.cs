@@ -11,17 +11,17 @@ namespace Fashion.Service.Store
         /// <summary>
         /// Get complete home page data including banners, featured products, and categories
         /// </summary>
-        Task<HomePageDto> GetHomePageDataAsync();
+        Task<HomePageDto> GetHomePageDataAsync(int storeId);
 
         /// <summary>
         /// Get shop by category data with filter options
         /// </summary>
-        Task<ShopByCategoryDto> GetShopByCategoryAsync(string category);
+        Task<ShopByCategoryDto> GetShopByCategoryAsync(string category, int storeId);
 
         /// <summary>
         /// Get filter options for a specific category
         /// </summary>
-        Task<CategoryFilterOptionsDto> GetFilterOptionsForCategoryAsync(string category);
+        Task<CategoryFilterOptionsDto> GetFilterOptionsForCategoryAsync(string category, int storeId);
 
         /// <summary>
         /// Get banners for home page
@@ -29,28 +29,8 @@ namespace Fashion.Service.Store
         Task<List<BannerDto>> GetBannersAsync();
 
         /// <summary>
-        /// Get new collection products
-        /// </summary>
-        Task<List<ItemDto>> GetNewCollectionAsync();
-
-        /// <summary>
-        /// Get best sellers products
-        /// </summary>
-        Task<List<ItemDto>> GetBestSellersAsync();
-
-        /// <summary>
-        /// Get on-sale products
-        /// </summary>
-        Task<List<ItemDto>> GetOnSaleAsync();
-
-        /// <summary>
         /// Get store categories
         /// </summary>
         Task<List<Fashion.Contract.DTOs.Store.CategoryDto>> GetCategoriesAsync();
-
-        /// <summary>
-        /// Get featured products
-        /// </summary>
-        Task<List<ItemDto>> GetFeaturedProductsAsync();
     }
 } 
