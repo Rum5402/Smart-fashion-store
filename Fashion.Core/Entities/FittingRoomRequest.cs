@@ -17,6 +17,10 @@ namespace Fashion.Core.Entities
         public DateTime? HandledAt { get; set; }
         public int? DeletedByStaffId { get; set; }
         public DateTime? DeletedAt { get; set; }
+        
+        public int StoreId { get; set; }
+        public virtual StoreBrandSettings Store { get; set; } = null!;
+        
         public virtual User User { get; set; } = null!;
         public virtual Item Item { get; set; } = null!;
         public virtual TeamMember? HandledByTeamMember { get; set; }

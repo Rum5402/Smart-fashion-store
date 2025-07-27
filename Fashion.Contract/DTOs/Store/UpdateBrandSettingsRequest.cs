@@ -50,9 +50,28 @@ namespace Fashion.Contract.DTOs.Store
         [MaxLength(200, ErrorMessage = "Store address cannot exceed 200 characters")]
         public string? StoreAddress { get; set; }
 
-        /// <summary>
-        /// Social media links (as key-value pairs, e.g., facebook, instagram, twitter)
-        /// </summary>
-        public Dictionary<string, string>? SocialMedia { get; set; }
+        [MaxLength(200)]
+        public string? LocationName { get; set; }
+        [MaxLength(200)]
+        public string? City { get; set; }
+        [MaxLength(100)]
+        public string? Country { get; set; }
+        [MaxLength(20)]
+        public string? PostalCode { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+        [MaxLength(50)]
+        public string? Floor { get; set; }
+        [MaxLength(200)]
+        public string? MallName { get; set; }
+        [MaxLength(20)]
+        public string? PhoneNumber { get; set; }
+        [MaxLength(20)]
+        public string? SecondaryPhoneNumber { get; set; }
+        [MaxLength(20)]
+        public string? WhatsAppNumber { get; set; }
+        [MaxLength(200)]
+        public string? Website { get; set; }
+        public Dictionary<string, string>? SocialMediaLinks { get; set; }
     }
 } 

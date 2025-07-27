@@ -598,6 +598,31 @@ namespace Fashion.Api.Controllers
         }
 
         /// <summary>
+        /// Update store description and about information (Manager only)
+        /// </summary>
+        [HttpPut("description")]
+        public async Task<IActionResult> UpdateStoreDescription([FromBody] UpdateStoreDescriptionRequest request)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                    return BadRequest(new { success = false, error = "Invalid request data" });
+
+                var description = await _storeControlService.UpdateStoreDescriptionAsync(request);
+                return Ok(new 
+                { 
+                    success = true, 
+                    message = "Store description updated successfully",
+                    data = description
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, error = "Error updating store description", details = ex.Message });
+            }
+        }
+
+        /// <summary>
         /// Get store banners and promotional content (public)
         /// </summary>
         [HttpGet("banners/public")]

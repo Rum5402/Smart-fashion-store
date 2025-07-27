@@ -13,6 +13,7 @@ using Fashion.Service.JWT;
 using Fashion.Service.Wishlist;
 using Fashion.Service.Admin;
 using Fashion.Service.Store;
+using Fashion.Service.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -115,12 +116,21 @@ namespace Fashion.Api
             // Add Memory Cache
             builder.Services.AddMemoryCache();
 
+            // Add HttpContextAccessor for domain-based store identification
+            builder.Services.AddHttpContextAccessor();
+
+            // Add Store Context Service
+            builder.Services.AddScoped<IStoreContextService, StoreContextService>();
+
             // Add Services
             builder.Services.AddScoped<IJwtService, JwtService>();
+            builder.Services.AddScoped<JwtService>();
+            builder.Services.AddScoped<PasswordHasher>();
             
             // Add Global Exception Handler
             builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
             builder.Services.AddProblemDetails();
+            
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IItemService, ItemService>();
             builder.Services.AddScoped<IColorDetectionService, ColorDetectionService>();
@@ -181,6 +191,9 @@ namespace Fashion.Api
             }
 
             app.UseHttpsRedirection();
+
+            // Add StoreDomainMiddleware before authentication
+            app.UseMiddleware<StoreDomainMiddleware>();
 
             app.UseCors("AllowSpecific");
 

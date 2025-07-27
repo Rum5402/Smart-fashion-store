@@ -1,8 +1,11 @@
 using Fashion.Contract.DTOs.Auth;
+using Fashion.Contract.DTOs.Common;
+using Fashion.Contract.Interface;
 using Fashion.Core.Entities;
 using Fashion.Core.Enums;
 using Fashion.Infrastructure.Data;
 using Fashion.Service.JWT;
+using Fashion.Service.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
@@ -12,118 +15,137 @@ namespace Fashion.Service.Authentications
     public class AuthService : IAuthService
     {
         private readonly FashionDbContext _context;
-        private readonly IJwtService _jwtService;
+        private readonly JwtService _jwtService;
+        private readonly PasswordHasher _passwordHasher;
+        private readonly IStoreContextService _storeContextService;
 
-        public AuthService(FashionDbContext context, IJwtService jwtService)
+        public AuthService(FashionDbContext context, JwtService jwtService, PasswordHasher passwordHasher, IStoreContextService storeContextService)
         {
             _context = context;
             _jwtService = jwtService;
+            _passwordHasher = passwordHasher;
+            _storeContextService = storeContextService;
         }
 
-
-
-        public async Task<LoginResponse> ExploreModeAsync(ExploreModeRequest request)
+        public async Task<ApiResponse<LoginResponse>> ExploreModeAsync(ExploreModeRequest request)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.PhoneNumber == request.PhoneNumber && !u.IsDeleted);
-
-            if (user == null)
+            try
             {
-                // Create new user with Explore role
-                user = new User
+                var storeId = _storeContextService.GetCurrentStoreId();
+                if (!storeId.HasValue)
+                    throw new Exception("Store not found for current domain");
+
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.PhoneNumber == request.PhoneNumber && u.StoreId == storeId.Value);
+
+                if (user == null)
                 {
-                    PhoneNumber = request.PhoneNumber,
-                    Name = request.Name,
-                    Role = UserRole.Explore
-                };
-                _context.Users.Add(user);
-            }
-            else
-            {
-                // Update existing user to Explore role with new data
-                user.Name = request.Name;
-                user.Role = UserRole.Explore;
-                user.UpdatedAt = DateTime.UtcNow;
-            }
+                    user = new User
+                    {
+                        PhoneNumber = request.PhoneNumber,
+                        Name = request.Name,
+                        Role = UserRole.Guest,
+                        StoreId = storeId.Value,
+                        CreatedAt = DateTime.UtcNow,
+                        IsActive = true
+                    };
 
-            await _context.SaveChangesAsync();
-
-            // Generate JWT token
-            var token = _jwtService.GenerateToken(user.Id, user.PhoneNumber, user.Role.ToString());
-
-            return new LoginResponse
-            {
-                Token = token,
-                User = new UserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    PhoneNumber = user.PhoneNumber,
-                    Role = user.Role.ToString(),
-                    Height = user.Height,
-                    Weight = user.Weight,
-                    Age = user.Age,
-                    Gender = user.Gender,
-                    SkinTone = user.SkinTone
+                    _context.Users.Add(user);
+                    await _context.SaveChangesAsync();
                 }
-            };
+                else
+                {
+                    user.StoreId = storeId.Value;
+                    await _context.SaveChangesAsync();
+                }
+
+                var token = _jwtService.GenerateToken(user.Id, user.PhoneNumber, user.Role.ToString());
+
+                return new ApiResponse<LoginResponse>
+                {
+                    Success = true,
+                    Data = new LoginResponse
+                    {
+                        Token = token,
+                        User = new UserDto
+                        {
+                            Id = user.Id,
+                            Name = user.Name,
+                            PhoneNumber = user.PhoneNumber,
+                            Role = user.Role.ToString(),
+                            Height = user.Height,
+                            Weight = user.Weight,
+                            Age = user.Age,
+                            Gender = user.Gender,
+                            SkinTone = user.SkinTone
+                        }
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<LoginResponse>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
         }
 
-        public async Task<LoginResponse> GuestLoginAsync(GuestLoginRequest request)
+        public async Task<ApiResponse<LoginResponse>> GuestLoginAsync(GuestLoginRequest request)
         {
-            var user = await _context.Users
-                .FirstOrDefaultAsync(u => u.PhoneNumber == request.PhoneNumber && !u.IsDeleted);
-
-            if (user == null)
+            try
             {
-                // Create new user with Guest role
-                user = new User
+                var storeId = _storeContextService.GetCurrentStoreId();
+                if (!storeId.HasValue)
+                    throw new Exception("Store not found for current domain");
+
+                var user = await _context.Users
+                    .FirstOrDefaultAsync(u => u.PhoneNumber == request.PhoneNumber && u.StoreId == storeId.Value);
+
+                if (user == null)
                 {
-                    PhoneNumber = request.PhoneNumber,
-                    Name = request.Name,
-                    Role = UserRole.Guest,
-                    Height = request.Height,
-                    Weight = request.Weight,
-                    Age = request.Age,
-                    Gender = request.Gender,
-                    SkinTone = request.SkinTone
-                };
-                _context.Users.Add(user);
-            }
-            else
-            {
-                // Update existing user to Guest role with new data
-                user.Name = request.Name;
-                user.Role = UserRole.Guest;
-                user.Height = request.Height;
-                user.Weight = request.Weight;
-                user.Age = request.Age;
-                user.Gender = request.Gender;
-                user.SkinTone = request.SkinTone;
-                user.UpdatedAt = DateTime.UtcNow;
-            }
-
-            await _context.SaveChangesAsync();
-
-            // Generate JWT token
-            var token = _jwtService.GenerateToken(user.Id, user.PhoneNumber, user.Role.ToString());
-
-            return new LoginResponse
-            {
-                Token = token,
-                User = new UserDto
-                {
-                    Id = user.Id,
-                    Name = user.Name,
-                    PhoneNumber = user.PhoneNumber,
-                    Role = user.Role.ToString(),
-                    Height = user.Height,
-                    Weight = user.Weight,
-                    Age = user.Age,
-                    Gender = user.Gender,
-                    SkinTone = user.SkinTone
+                    return new ApiResponse<LoginResponse>
+                    {
+                        Success = false,
+                        Message = "User not found. Please use Explore Mode first."
+                    };
                 }
-            };
+
+                user.StoreId = storeId.Value;
+                await _context.SaveChangesAsync();
+
+                var token = _jwtService.GenerateToken(user.Id, user.PhoneNumber, user.Role.ToString());
+
+                return new ApiResponse<LoginResponse>
+                {
+                    Success = true,
+                    Data = new LoginResponse
+                    {
+                        Token = token,
+                        User = new UserDto
+                        {
+                            Id = user.Id,
+                            Name = user.Name,
+                            PhoneNumber = user.PhoneNumber,
+                            Role = user.Role.ToString(),
+                            Height = user.Height,
+                            Weight = user.Weight,
+                            Age = user.Age,
+                            Gender = user.Gender,
+                            SkinTone = user.SkinTone
+                        }
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                return new ApiResponse<LoginResponse>
+                {
+                    Success = false,
+                    Message = ex.Message
+                };
+            }
         }
 
         public async Task<LoginResponse> SaveProfileAsync(SaveProfileRequest request)
@@ -294,14 +316,5 @@ namespace Fashion.Service.Authentications
                 return Convert.ToBase64String(hashedBytes);
             }
         }
-    }
-
-    public interface IAuthService
-    {
-        Task<LoginResponse> ExploreModeAsync(ExploreModeRequest request);
-        Task<LoginResponse> GuestLoginAsync(GuestLoginRequest request);
-        Task<LoginResponse> SaveProfileAsync(SaveProfileRequest request);
-        Task<LoginResponse> ManagerLoginAsync(ManagerLoginRequest request);
-        Task<LoginResponse> CreateManagerAsync(ManagerRegisterRequest request);
     }
 } 

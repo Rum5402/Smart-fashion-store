@@ -50,9 +50,22 @@ namespace Fashion.Contract.DTOs.Store
         public string? ContactEmail { get; set; }
         public string? ContactPhone { get; set; }
         public string? StoreAddress { get; set; }
+        public string? LocationName { get; set; }
+        public string? City { get; set; }
+        public string? Country { get; set; }
+        public string? PostalCode { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+        public string? Floor { get; set; }
+        public string? MallName { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string? SecondaryPhoneNumber { get; set; }
+        public string? WhatsAppNumber { get; set; }
+        public string? Website { get; set; }
         /// <summary>
         /// Social media links (as key-value pairs, e.g., facebook, instagram, twitter)
         /// </summary>
         public Dictionary<string, string>? SocialMedia { get; set; }
+        public Dictionary<string, string>? SocialMediaLinks { get; set; }
     }
 } 

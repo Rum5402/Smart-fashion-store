@@ -138,13 +138,22 @@ namespace Fashion.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            var userId = GetCurrentUserId();
+            var manager = await _context.Managers.FindAsync(userId);
+            if (manager == null)
+                return Unauthorized(new { success = false, message = "Manager not found" });
+
+            var item = await _context.Items.FindAsync(id);
+            if (item == null || item.IsDeleted)
+                return NotFound(new { success = false, message = "Product not found" });
+
+            if (item.StoreId != manager.StoreId)
+                return Unauthorized(new { success = false, message = "You do not have permission to modify this product" });
+
             try
             {
-                var item = await _itemService.UpdateItemAsync(id, request);
-                if (item == null)
-                    return NotFound(new { success = false, message = "Product not found" });
-
-                return Ok(new { success = true, message = "Product updated successfully", product = item });
+                var updated = await _itemService.UpdateItemAsync(id, request);
+                return Ok(new { success = true, message = "Product updated successfully", product = updated });
             }
             catch (Exception ex)
             {
@@ -155,6 +164,18 @@ namespace Fashion.Api.Controllers
         [HttpDelete("products/{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
+            var userId = GetCurrentUserId();
+            var manager = await _context.Managers.FindAsync(userId);
+            if (manager == null)
+                return Unauthorized(new { success = false, message = "Manager not found" });
+
+            var item = await _context.Items.FindAsync(id);
+            if (item == null || item.IsDeleted)
+                return NotFound(new { success = false, message = "Product not found" });
+
+            if (item.StoreId != manager.StoreId)
+                return Unauthorized(new { success = false, message = "You do not have permission to delete this product" });
+
             try
             {
                 var success = await _itemService.DeleteItemAsync(id);

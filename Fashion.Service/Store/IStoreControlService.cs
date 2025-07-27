@@ -37,6 +37,7 @@ namespace Fashion.Service.Store
         Task<StoreLocationDto> GetStoreLocationAsync();
         Task<StoreContactDto> GetStoreContactAsync();
         Task<StoreDescriptionDto> GetStoreDescriptionAsync();
+        Task<StoreDescriptionDto> UpdateStoreDescriptionAsync(UpdateStoreDescriptionRequest request);
         Task<List<BannerDto>> GetStoreBannersAsync();
         Task<List<CategoryDto>> GetStoreCategoriesAsync();
         Task<List<FilterDto>> GetStoreFiltersAsync();

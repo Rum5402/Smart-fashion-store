@@ -98,6 +98,7 @@ namespace Fashion.Service.Items
                 IsBestSeller = request.IsBestSeller,
                 IsOnSale = request.IsOnSale,
                 StoreCategoryId = request.StoreCategoryId,
+                StoreId = request.StoreId,
                 IsActive = true
             };
 
@@ -116,7 +117,6 @@ namespace Fashion.Service.Items
         public async Task<ItemDto?> UpdateItemAsync(int id, UpdateItemRequest request)
         {
             var itemRepository = _unitOfWork.Repository<Item>();
-            
             var item = await itemRepository.GetByIdAsync(id);
             if (item == null || item.IsDeleted)
                 return null;
@@ -150,7 +150,7 @@ namespace Fashion.Service.Items
                 item.PrimaryColor = await _colorDetectionService.DetectPrimaryColorAsync(request.ImageUrls.First());
             }
 
-            await itemRepository.UpdateAsync(item);
+            // No UpdateAsync, just SaveChangeAsync
             await _unitOfWork.SaveChangeAsync();
 
             return await GetItemByIdAsync(item.Id);

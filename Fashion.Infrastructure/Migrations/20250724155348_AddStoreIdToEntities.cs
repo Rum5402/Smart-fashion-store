@@ -87,6 +87,69 @@ namespace Fashion.Infrastructure.Migrations
                 table: "StoreBrandSettings",
                 nullable: true);
 
+            migrationBuilder.AddColumn<string>(
+                name: "LocationName",
+                table: "StoreBrandSettings",
+                maxLength: 200,
+                nullable: true);
+            migrationBuilder.AddColumn<string>(
+                name: "City",
+                table: "StoreBrandSettings",
+                maxLength: 200,
+                nullable: true);
+            migrationBuilder.AddColumn<string>(
+                name: "Country",
+                table: "StoreBrandSettings",
+                maxLength: 100,
+                nullable: true);
+            migrationBuilder.AddColumn<string>(
+                name: "PostalCode",
+                table: "StoreBrandSettings",
+                maxLength: 20,
+                nullable: true);
+            migrationBuilder.AddColumn<double>(
+                name: "Latitude",
+                table: "StoreBrandSettings",
+                nullable: true);
+            migrationBuilder.AddColumn<double>(
+                name: "Longitude",
+                table: "StoreBrandSettings",
+                nullable: true);
+            migrationBuilder.AddColumn<string>(
+                name: "Floor",
+                table: "StoreBrandSettings",
+                maxLength: 50,
+                nullable: true);
+            migrationBuilder.AddColumn<string>(
+                name: "MallName",
+                table: "StoreBrandSettings",
+                maxLength: 200,
+                nullable: true);
+            migrationBuilder.AddColumn<string>(
+                name: "PhoneNumber",
+                table: "StoreBrandSettings",
+                maxLength: 20,
+                nullable: true);
+            migrationBuilder.AddColumn<string>(
+                name: "SecondaryPhoneNumber",
+                table: "StoreBrandSettings",
+                maxLength: 20,
+                nullable: true);
+            migrationBuilder.AddColumn<string>(
+                name: "WhatsAppNumber",
+                table: "StoreBrandSettings",
+                maxLength: 20,
+                nullable: true);
+            migrationBuilder.AddColumn<string>(
+                name: "Website",
+                table: "StoreBrandSettings",
+                maxLength: 200,
+                nullable: true);
+            migrationBuilder.AddColumn<string>(
+                name: "SocialMediaLinks",
+                table: "StoreBrandSettings",
+                nullable: true);
+
             migrationBuilder.CreateIndex(
                 name: "IX_Users_StoreId",
                 table: "Users",

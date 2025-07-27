@@ -1,9 +1,10 @@
 using Fashion.Contract.DTOs.Auth;
 using Fashion.Contract.DTOs.Common;
-using Fashion.Service.Authentications;
+using Fashion.Service.Interfaces;
 using Fashion.Service.JWT;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Fashion.Service.Authentications;
 
 
 namespace Fashion.Api.Controllers

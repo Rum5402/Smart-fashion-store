@@ -35,6 +35,8 @@ namespace Fashion.Core.Entities
         public int StoreId { get; set; }
         public virtual StoreBrandSettings Store { get; set; } = null!;
         
+        public bool IsActive { get; set; } = true;
+        
         // Navigation properties
         public virtual ICollection<FittingRoomRequest> FittingRoomRequests { get; set; } = new List<FittingRoomRequest>();
         public virtual ICollection<Item> SavedItems { get; set; } = new List<Item>();

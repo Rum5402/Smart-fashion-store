@@ -4,6 +4,7 @@ using Fashion.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fashion.Infrastructure.Migrations
 {
     [DbContext(typeof(FashionDbContext))]
-    partial class FashionDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250724201818_FixStoreBrandSettingsRelations")]
+    partial class FixStoreBrandSettingsRelations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -95,9 +98,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
@@ -109,8 +109,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.HasIndex("HandledByStaffId");
 
                     b.HasIndex("ItemId");
-
-                    b.HasIndex("StoreId");
 
                     b.HasIndex("UserId");
 
@@ -342,9 +340,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<DateTime?>("RespondedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -364,8 +359,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.HasIndex("FittingRoomRequestId");
 
                     b.HasIndex("ItemId");
-
-                    b.HasIndex("StoreId");
 
                     b.ToTable("Notifications");
                 });
@@ -486,10 +479,6 @@ namespace Fashion.Infrastructure.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
 
-                    b.Property<string>("City")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
                     b.Property<string>("ContactEmail")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -498,16 +487,8 @@ namespace Fashion.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<string>("Country")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("Floor")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Highlights")
                         .HasColumnType("nvarchar(max)");
@@ -518,35 +499,13 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
-                    b.Property<double?>("Latitude")
-                        .HasColumnType("float");
-
-                    b.Property<string>("LocationName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<double?>("Longitude")
-                        .HasColumnType("float");
-
-                    b.Property<string>("MallName")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
                     b.Property<string>("Mission")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<string>("PostalCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("PrimaryColor")
                         .HasMaxLength(7)
@@ -556,14 +515,7 @@ namespace Fashion.Infrastructure.Migrations
                         .HasMaxLength(7)
                         .HasColumnType("nvarchar(7)");
 
-                    b.Property<string>("SecondaryPhoneNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
-
                     b.Property<string>("SocialMedia")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SocialMediaLinks")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StoreAddress")
@@ -573,10 +525,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<string>("StoreDescription")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("StoreDomain")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("StoreName")
                         .IsRequired()
@@ -596,14 +544,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<string>("Vision")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("Website")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("WhatsAppNumber")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("Id");
 
@@ -799,10 +739,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<int?>("ManagerId1")
                         .HasColumnType("int");
 
-                    b.Property<string>("PasswordHash")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -811,14 +747,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Property<string>("ProfileImageUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
-
-                    b.Property<string>("Role")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<int>("StoreId")
-                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -851,9 +779,6 @@ namespace Fashion.Infrastructure.Migrations
 
                     b.Property<int?>("Height")
                         .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -965,12 +890,6 @@ namespace Fashion.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Fashion.Core.Entities.StoreBrandSettings", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Fashion.Core.Entities.User", "User")
                         .WithMany("FittingRoomRequests")
                         .HasForeignKey("UserId")
@@ -980,8 +899,6 @@ namespace Fashion.Infrastructure.Migrations
                     b.Navigation("HandledByTeamMember");
 
                     b.Navigation("Item");
-
-                    b.Navigation("Store");
 
                     b.Navigation("User");
                 });
@@ -1031,17 +948,9 @@ namespace Fashion.Infrastructure.Migrations
                         .HasForeignKey("ItemId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Fashion.Core.Entities.StoreBrandSettings", "Store")
-                        .WithMany()
-                        .HasForeignKey("StoreId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("FittingRoomRequest");
 
                     b.Navigation("Item");
-
-                    b.Navigation("Store");
                 });
 
             modelBuilder.Entity("Fashion.Core.Entities.Promotion", b =>

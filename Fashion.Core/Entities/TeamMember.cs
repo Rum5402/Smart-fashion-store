@@ -27,12 +27,20 @@ namespace Fashion.Core.Entities
         [Required]
         public int ManagerId { get; set; }
         
+        public int StoreId { get; set; }
+        
         public bool IsActive { get; set; } = true;
         
         public DateTime? LastLoginAt { get; set; }
         
         [MaxLength(500)]
         public string? ProfileImageUrl { get; set; }
+        
+        [MaxLength(255)]
+        public string? PasswordHash { get; set; }
+        
+        [MaxLength(50)]
+        public string Role { get; set; } = "TeamMember";
         
         // Computed property for full name
         public string FullName => $"{FirstName} {LastName}".Trim();

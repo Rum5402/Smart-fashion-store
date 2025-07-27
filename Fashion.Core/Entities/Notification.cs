@@ -14,6 +14,9 @@ namespace Fashion.Core.Entities
         public DateTime? ReadAt { get; set; }
         public string? AdminResponse { get; set; } // رد الـ Admin
         public DateTime? RespondedAt { get; set; }
+        
+        public int StoreId { get; set; }
+        public virtual StoreBrandSettings Store { get; set; } = null!;
 
         // Navigation Properties
         public Item? Item { get; set; }

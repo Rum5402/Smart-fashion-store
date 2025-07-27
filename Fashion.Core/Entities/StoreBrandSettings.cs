@@ -102,6 +102,12 @@ namespace Fashion.Core.Entities
         public string? Highlights { get; set; }
 
         /// <summary>
+        /// Store domain for automatic store identification (e.g., "cairo-mall.fashion.com")
+        /// </summary>
+        [MaxLength(200, ErrorMessage = "Store domain cannot exceed 200 characters")]
+        public string? StoreDomain { get; set; }
+
+        /// <summary>
         /// Date and time when the brand settings were created
         /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -110,5 +116,29 @@ namespace Fashion.Core.Entities
         /// Date and time when the brand settings were last updated
         /// </summary>
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+        [MaxLength(200)]
+        public string? LocationName { get; set; }
+        [MaxLength(200)]
+        public string? City { get; set; }
+        [MaxLength(100)]
+        public string? Country { get; set; }
+        [MaxLength(20)]
+        public string? PostalCode { get; set; }
+        public double? Latitude { get; set; }
+        public double? Longitude { get; set; }
+        [MaxLength(50)]
+        public string? Floor { get; set; }
+        [MaxLength(200)]
+        public string? MallName { get; set; }
+        [MaxLength(20)]
+        public string? PhoneNumber { get; set; }
+        [MaxLength(20)]
+        public string? SecondaryPhoneNumber { get; set; }
+        [MaxLength(20)]
+        public string? WhatsAppNumber { get; set; }
+        [MaxLength(200)]
+        public string? Website { get; set; }
+        public string? SocialMediaLinks { get; set; }
     }
 } 

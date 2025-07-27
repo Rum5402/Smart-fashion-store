@@ -7,6 +7,7 @@ using Fashion.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Fashion.Infrastructure.Data
 {
@@ -122,6 +123,13 @@ namespace Fashion.Infrastructure.Data
                 .HasForeignKey(c => c.ParentCategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // StoreCategory - StoreBrandSettings
+            modelBuilder.Entity<StoreCategory>()
+                .HasOne(c => c.Store)
+                .WithMany()
+                .HasForeignKey(c => c.StoreId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Configure StoreFilter enum conversions
             modelBuilder.Entity<StoreFilter>()
                 .Property(f => f.Type)
@@ -130,6 +138,13 @@ namespace Fashion.Infrastructure.Data
             modelBuilder.Entity<StoreFilter>()
                 .Property(f => f.SelectionType)
                 .HasConversion<int>();
+
+            // StoreFilter - StoreBrandSettings
+            modelBuilder.Entity<StoreFilter>()
+                .HasOne(f => f.Store)
+                .WithMany()
+                .HasForeignKey(f => f.StoreId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Configure TeamMember relationships
             modelBuilder.Entity<TeamMember>()
@@ -145,14 +160,48 @@ namespace Fashion.Infrastructure.Data
                 .HasForeignKey(f => f.HandledByStaffId)
                 .OnDelete(DeleteBehavior.SetNull);
 
-            // Configure SocialMedia as JSON for StoreBrandSettings
+            // StoreBanner - StoreBrandSettings
+            modelBuilder.Entity<StoreBanner>()
+                .HasOne(b => b.Store)
+                .WithMany()
+                .HasForeignKey(b => b.StoreId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Item - StoreBrandSettings
+            modelBuilder.Entity<Item>()
+                .HasOne(i => i.Store)
+                .WithMany()
+                .HasForeignKey(i => i.StoreId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // User - StoreBrandSettings
+            modelBuilder.Entity<User>()
+                .HasOne(u => u.Store)
+                .WithMany()
+                .HasForeignKey(u => u.StoreId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Manager - StoreBrandSettings
+            modelBuilder.Entity<Manager>()
+                .HasOne(m => m.Store)
+                .WithMany()
+                .HasForeignKey(m => m.StoreId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Configure SocialMedia as JSON for StoreBrandSettings with ValueComparer
             var dictionaryConverter = new ValueConverter<Dictionary<string, string>?, string?>(
                 v => v == null ? null : JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
                 v => v == null ? null : JsonSerializer.Deserialize<Dictionary<string, string>>(v, (JsonSerializerOptions)null)
             );
+            var dictionaryComparer = new ValueComparer<Dictionary<string, string>?>(
+                (d1, d2) => JsonSerializer.Serialize(d1, (JsonSerializerOptions)null) == JsonSerializer.Serialize(d2, (JsonSerializerOptions)null),
+                d => d == null ? 0 : JsonSerializer.Serialize(d, (JsonSerializerOptions)null).GetHashCode(),
+                d => d == null ? null : JsonSerializer.Deserialize<Dictionary<string, string>>(JsonSerializer.Serialize(d, (JsonSerializerOptions)null), (JsonSerializerOptions)null)
+            );
             modelBuilder.Entity<StoreBrandSettings>()
                 .Property(e => e.SocialMedia)
-                .HasConversion(dictionaryConverter);
+                .HasConversion(dictionaryConverter)
+                .Metadata.SetValueComparer(dictionaryComparer);
         }
     }
 } 

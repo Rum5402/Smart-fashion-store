@@ -3,6 +3,7 @@ using Fashion.Core.Entities;
 using Fashion.Core.Interface;
 using Fashion.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json;
 
 namespace Fashion.Service.Store
 {
@@ -257,113 +258,182 @@ namespace Fashion.Service.Store
         #region Store Information
         public async Task<StoreInfoDto> GetStoreInfoAsync()
         {
-            // Simulate async operation
-            await Task.Delay(1);
-            
-            // For now, return hardcoded ZARA store information
-            // In a real application, this would come from the database
+            var settings = await _context.StoreBrandSettings.FirstOrDefaultAsync();
+            if (settings == null)
+            {
+                return new StoreInfoDto();
+            }
+            Dictionary<string, string> socialMedia = new();
+            if (!string.IsNullOrEmpty(settings.SocialMediaLinks))
+            {
+                try
+                {
+                    socialMedia = JsonSerializer.Deserialize<Dictionary<string, string>>(settings.SocialMediaLinks) ?? new();
+                }
+                catch { socialMedia = new(); }
+            }
             return new StoreInfoDto
             {
-                Id = 1,
-                BrandName = "ZARA",
-                StoreName = "ZARA - Cairo Festival City",
-                LocationName = "Cairo Festival City Mall (New Cairo)",
-                Address = "Ring Road, Cairo Festival City, 2nd Floor, New Cairo, Cairo",
-                PhoneNumber = "+2 01007972537",
-                Email = "info@zara.com",
-                Website = "https://www.zara.com",
-                Description = "Step into a world of fashion that's always ahead. From timeless everyday wear to bold statement pieces, ZARA brings you the latest trends with a touch of effortless style. Redefine your wardrobe with pieces that speak your style, your way.",
-                LogoUrl = "/images/zara-logo.png",
-                BannerUrl = "/images/zara-banner.jpg",
-                OpeningHours = "10:00 AM - 10:00 PM",
-                SocialMediaLinks = new Dictionary<string, string>
-                {
-                    { "Facebook", "https://facebook.com/zara" },
-                    { "Instagram", "https://instagram.com/zara" },
-                    { "Twitter", "https://twitter.com/zara" }
-                },
-                Features = new List<string>
-                {
-                    "Fitting Rooms",
-                    "Personal Styling",
-                    "Alterations",
-                    "Gift Cards",
-                    "Loyalty Program"
-                },
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                Id = settings.Id,
+                BrandName = settings.StoreName ?? string.Empty,
+                StoreName = settings.StoreName ?? string.Empty,
+                LocationName = settings.LocationName ?? string.Empty,
+                Address = settings.StoreAddress ?? string.Empty,
+                PhoneNumber = settings.PhoneNumber ?? string.Empty,
+                Email = settings.ContactEmail ?? string.Empty,
+                Website = settings.Website ?? string.Empty,
+                Description = settings.StoreDescription ?? string.Empty,
+                LogoUrl = settings.LogoUrl ?? string.Empty,
+                BannerUrl = string.Empty, // أضف إذا كان لديك حقل BannerUrl
+                OpeningHours = string.Empty, // أضف إذا كان لديك حقل OpeningHours
+                SocialMediaLinks = socialMedia,
+                Features = new List<string>(), // أضف إذا كان لديك حقل Features
+                IsActive = settings.IsActive,
+                CreatedAt = settings.CreatedAt,
+                UpdatedAt = settings.UpdatedAt
             };
         }
 
         public async Task<StoreLocationDto> GetStoreLocationAsync()
         {
-            // Simulate async operation
-            await Task.Delay(1);
-            
+            var settings = await _context.StoreBrandSettings.FirstOrDefaultAsync();
+            if (settings == null)
+            {
+                return new StoreLocationDto();
+            }
             return new StoreLocationDto
             {
-                LocationName = "Cairo Festival City Mall (New Cairo)",
-                Address = "Ring Road, Cairo Festival City, 2nd Floor, New Cairo, Cairo",
-                City = "New Cairo",
-                Country = "Egypt",
-                PostalCode = "11835",
-                Latitude = 30.0444,
-                Longitude = 31.2357,
-                Floor = "2nd Floor",
-                MallName = "Cairo Festival City Mall"
+                LocationName = settings.LocationName,
+                Address = settings.StoreAddress,
+                City = settings.City,
+                Country = settings.Country,
+                PostalCode = settings.PostalCode,
+                Latitude = settings.Latitude,
+                Longitude = settings.Longitude,
+                Floor = settings.Floor,
+                MallName = settings.MallName
             };
         }
 
         public async Task<StoreContactDto> GetStoreContactAsync()
         {
-            // Simulate async operation
-            await Task.Delay(1);
-            
+            var settings = await _context.StoreBrandSettings.FirstOrDefaultAsync();
+            if (settings == null)
+            {
+                return new StoreContactDto();
+            }
+            Dictionary<string, string>? socialMedia = null;
+            if (!string.IsNullOrEmpty(settings.SocialMediaLinks))
+            {
+                try
+                {
+                    socialMedia = JsonSerializer.Deserialize<Dictionary<string, string>>(settings.SocialMediaLinks);
+                }
+                catch { socialMedia = null; }
+            }
             return new StoreContactDto
             {
-                PhoneNumber = "+2 01007972537",
-                SecondaryPhoneNumber = "+2 01007972538",
-                Email = "cairo.festival@zara.com",
-                WhatsAppNumber = "+2 01007972537",
-                Website = "https://www.zara.com",
-                SocialMediaLinks = new Dictionary<string, string>
-                {
-                    { "Facebook", "https://facebook.com/zara" },
-                    { "Instagram", "https://instagram.com/zara" },
-                    { "Twitter", "https://twitter.com/zara" },
-                    { "YouTube", "https://youtube.com/zara" }
-                }
+                PhoneNumber = settings.PhoneNumber,
+                SecondaryPhoneNumber = settings.SecondaryPhoneNumber,
+                Email = settings.ContactEmail,
+                WhatsAppNumber = settings.WhatsAppNumber,
+                Website = settings.Website,
+                SocialMediaLinks = socialMedia
             };
         }
 
         public async Task<StoreDescriptionDto> GetStoreDescriptionAsync()
         {
-            // Simulate async operation
-            await Task.Delay(1);
+            // Get the first store brand settings (assuming single store for now)
+            var settings = await _context.StoreBrandSettings.FirstOrDefaultAsync();
+            if (settings == null)
+            {
+                // Return default empty data if no settings exist
+                return new StoreDescriptionDto
+                {
+                    Description = "",
+                    AboutUs = "",
+                    Mission = "",
+                    Vision = "",
+                    Values = new List<string>(),
+                    Highlights = new List<string>()
+                };
+            }
+
+            // Parse JSON arrays for Values and Highlights
+            var values = new List<string>();
+            var highlights = new List<string>();
             
+            if (!string.IsNullOrEmpty(settings.Values))
+            {
+                try
+                {
+                    values = JsonSerializer.Deserialize<List<string>>(settings.Values) ?? new List<string>();
+                }
+                catch
+                {
+                    values = new List<string>();
+                }
+            }
+            
+            if (!string.IsNullOrEmpty(settings.Highlights))
+            {
+                try
+                {
+                    highlights = JsonSerializer.Deserialize<List<string>>(settings.Highlights) ?? new List<string>();
+                }
+                catch
+                {
+                    highlights = new List<string>();
+                }
+            }
+
             return new StoreDescriptionDto
             {
-                Description = "Step into a world of fashion that's always ahead. From timeless everyday wear to bold statement pieces, ZARA brings you the latest trends with a touch of effortless style. Redefine your wardrobe with pieces that speak your style, your way.",
-                AboutUs = "ZARA is one of the world's largest international fashion companies. It belongs to Inditex, one of the world's largest distribution groups. The customer is at the heart of our unique business model, which includes design, production, distribution and sales through our extensive retail network.",
-                Mission = "To provide high-quality, trendy fashion at affordable prices while maintaining sustainable practices and excellent customer service.",
-                Vision = "To be the leading global fashion retailer, inspiring customers with innovative designs and exceptional shopping experiences.",
-                Values = new List<string>
+                Description = settings.StoreDescription ?? "",
+                AboutUs = settings.AboutUs ?? "",
+                Mission = settings.Mission ?? "",
+                Vision = settings.Vision ?? "",
+                Values = values,
+                Highlights = highlights
+            };
+        }
+
+        public async Task<StoreDescriptionDto> UpdateStoreDescriptionAsync(UpdateStoreDescriptionRequest request)
+        {
+            var settings = await _context.StoreBrandSettings.FirstOrDefaultAsync();
+            if (settings == null)
+            {
+                // Create new settings if none exist
+                settings = new StoreBrandSettings
                 {
-                    "Innovation",
-                    "Sustainability",
-                    "Customer Focus",
-                    "Quality",
-                    "Diversity"
-                },
-                Highlights = new List<string>
-                {
-                    "Latest Fashion Trends",
-                    "Sustainable Fashion",
-                    "Personal Styling Services",
-                    "Global Fashion Network",
-                    "Fast Fashion Innovation"
-                }
+                    StoreName = "Default Store",
+                    IsActive = true,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+                _context.StoreBrandSettings.Add(settings);
+            }
+
+            // Update the fields
+            settings.StoreDescription = request.Description;
+            settings.AboutUs = request.AboutUs;
+            settings.Mission = request.Mission;
+            settings.Vision = request.Vision;
+            settings.Values = JsonSerializer.Serialize(request.Values ?? new List<string>());
+            settings.Highlights = JsonSerializer.Serialize(request.Highlights ?? new List<string>());
+            settings.UpdatedAt = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return new StoreDescriptionDto
+            {
+                Description = settings.StoreDescription ?? "",
+                AboutUs = settings.AboutUs ?? "",
+                Mission = settings.Mission ?? "",
+                Vision = settings.Vision ?? "",
+                Values = request.Values ?? new List<string>(),
+                Highlights = request.Highlights ?? new List<string>()
             };
         }
 
@@ -506,7 +576,19 @@ namespace Fashion.Service.Store
             settings.ContactEmail = request.ContactEmail;
             settings.ContactPhone = request.ContactPhone;
             settings.StoreAddress = request.StoreAddress;
-            settings.SocialMedia = request.SocialMedia;
+            settings.LocationName = request.LocationName;
+            settings.City = request.City;
+            settings.Country = request.Country;
+            settings.PostalCode = request.PostalCode;
+            settings.Latitude = request.Latitude;
+            settings.Longitude = request.Longitude;
+            settings.Floor = request.Floor;
+            settings.MallName = request.MallName;
+            settings.PhoneNumber = request.PhoneNumber;
+            settings.SecondaryPhoneNumber = request.SecondaryPhoneNumber;
+            settings.WhatsAppNumber = request.WhatsAppNumber;
+            settings.Website = request.Website;
+            settings.SocialMediaLinks = request.SocialMediaLinks != null ? JsonSerializer.Serialize(request.SocialMediaLinks) : null;
             settings.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();

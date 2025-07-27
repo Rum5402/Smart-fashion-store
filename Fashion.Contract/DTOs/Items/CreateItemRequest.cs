@@ -65,5 +65,8 @@ namespace Fashion.Contract.DTOs.Items
         /// Foreign key to Categories table (StoreCategoryId)
         /// </summary>
         public int? StoreCategoryId { get; set; }
+        
+        [Required]
+        public int StoreId { get; set; }
     }
 } 

@@ -1,50 +1,73 @@
 using Fashion.Contract.DTOs.Auth;
 using Fashion.Contract.DTOs.Common;
+using Fashion.Contract.Interface;
 using Fashion.Core.Entities;
 using Fashion.Core.Enums;
 using Fashion.Core.Exceptions;
 using Fashion.Core.Interface;
+using Fashion.Infrastructure.Data;
 using Fashion.Service.JWT;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Fashion.Service.Authentications
 {
     public class TeamMemberService : ITeamMemberService
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IJwtService _jwtService;
+        private readonly FashionDbContext _context;
+        private readonly JwtService _jwtService;
+        private readonly PasswordHasher _passwordHasher;
+        private readonly IStoreContextService _storeContextService;
 
-        public TeamMemberService(IUnitOfWork unitOfWork, IJwtService jwtService)
+        public TeamMemberService(FashionDbContext context, JwtService jwtService, PasswordHasher passwordHasher, IStoreContextService storeContextService)
         {
-            _unitOfWork = unitOfWork;
+            _context = context;
             _jwtService = jwtService;
+            _passwordHasher = passwordHasher;
+            _storeContextService = storeContextService;
         }
 
         public async Task<ApiResponse<TeamMemberLoginResponse>> LoginAsync(TeamMemberLoginRequest request)
         {
             try
             {
-                // Get all team members and filter in memory since GetAsync is not available
-                var allTeamMembers = await _unitOfWork.Repository<TeamMember>().GetAllAsync();
-                var teamMember = allTeamMembers.FirstOrDefault(tm => tm.FullName == request.Name && 
-                                                                   tm.PhoneNumber == request.PhoneNumber && 
-                                                                   tm.IsActive);
+                var storeId = _storeContextService.GetCurrentStoreId();
+                if (!storeId.HasValue)
+                {
+                    return new ApiResponse<TeamMemberLoginResponse>
+                    {
+                        Success = false,
+                        Message = "Store not found for current domain"
+                    };
+                }
+
+                var allTeamMembers = await _context.TeamMembers
+                    .Where(tm => !tm.IsDeleted)
+                    .ToListAsync();
+
+                var teamMember = allTeamMembers.FirstOrDefault(tm => 
+                    tm.PhoneNumber == request.PhoneNumber && 
+                    tm.StoreId == storeId.Value);
 
                 if (teamMember == null)
                 {
                     return new ApiResponse<TeamMemberLoginResponse>
                     {
                         Success = false,
-                        Message = "بيانات غير صحيحة أو العضو غير موجود"
+                        Message = "Invalid phone number or password"
                     };
                 }
 
-                // Update last login
-                teamMember.LastLoginAt = DateTime.UtcNow;
-                await _unitOfWork.SaveChangeAsync();
+                if (!teamMember.IsActive)
+                {
+                    return new ApiResponse<TeamMemberLoginResponse>
+                    {
+                        Success = false,
+                        Message = "Account is deactivated"
+                    };
+                }
 
-                // Generate token
-                var token = _jwtService.GenerateToken(teamMember.Id, teamMember.PhoneNumber, UserRole.TeamMember.ToString());
+                var token = _jwtService.GenerateToken(teamMember.Id, teamMember.PhoneNumber, teamMember.Role.ToString());
 
                 return new ApiResponse<TeamMemberLoginResponse>
                 {
@@ -55,20 +78,11 @@ namespace Fashion.Service.Authentications
                         TeamMember = new TeamMemberDto
                         {
                             Id = teamMember.Id,
-                            FirstName = teamMember.FirstName,
-                            LastName = teamMember.LastName,
                             FullName = teamMember.FullName,
                             PhoneNumber = teamMember.PhoneNumber,
-                            IDNumber = teamMember.IDNumber,
-                            Department = teamMember.Department,
-                            Role = UserRole.TeamMember.ToString(),
-                            IsActive = teamMember.IsActive,
-                            LastLoginAt = teamMember.LastLoginAt,
-                            ProfileImageUrl = teamMember.ProfileImageUrl,
-                            CreatedAt = teamMember.CreatedAt
+                            Role = teamMember.Role.ToString()
                         }
-                    },
-                    Message = "تم تسجيل الدخول بنجاح"
+                    }
                 };
             }
             catch (Exception ex)
@@ -76,7 +90,7 @@ namespace Fashion.Service.Authentications
                 return new ApiResponse<TeamMemberLoginResponse>
                 {
                     Success = false,
-                    Message = $"فشل تسجيل الدخول: {ex.Message}"
+                    Message = ex.Message
                 };
             }
         }
@@ -86,7 +100,7 @@ namespace Fashion.Service.Authentications
             try
             {
                 // Verify manager exists
-                var allManagers = await _unitOfWork.Repository<Manager>().GetAllAsync();
+                var allManagers = await _context.Managers.ToListAsync();
                 var manager = allManagers.FirstOrDefault(m => m.Id == managerId);
                 if (manager == null)
                 {
@@ -98,7 +112,7 @@ namespace Fashion.Service.Authentications
                 }
 
                 // Check if team member already exists with same phone number
-                var allTeamMembers = await _unitOfWork.Repository<TeamMember>().GetAllAsync();
+                var allTeamMembers = await _context.TeamMembers.ToListAsync();
                 var existingMember = allTeamMembers.FirstOrDefault(tm => tm.PhoneNumber == request.PhoneNumber && tm.ManagerId == managerId);
 
                 if (existingMember != null)
@@ -133,8 +147,8 @@ namespace Fashion.Service.Authentications
                     IsActive = true
                 };
 
-                await _unitOfWork.Repository<TeamMember>().AddAsync(teamMember);
-                await _unitOfWork.SaveChangeAsync();
+                await _context.TeamMembers.AddAsync(teamMember);
+                await _context.SaveChangesAsync();
 
                 return new ApiResponse<TeamMemberDto>
                 {
@@ -170,7 +184,7 @@ namespace Fashion.Service.Authentications
         {
             try
             {
-                var allTeamMembers = await _unitOfWork.Repository<TeamMember>().GetAllAsync();
+                var allTeamMembers = await _context.TeamMembers.ToListAsync();
                 var teamMembers = allTeamMembers.Where(tm => tm.ManagerId == managerId).ToList();
 
                 // Log all team members for this manager
@@ -198,7 +212,7 @@ namespace Fashion.Service.Authentications
 
                 // Calculate counts
                 var totalCount = teamMembers.Count;
-                var activeCount = teamMembers.Count(tm => tm.IsActive);
+                var activeCount = Enumerable.Count(teamMembers, tm => tm.IsActive);
 
                 Console.WriteLine($"Total Count: {totalCount}, Active Count: {activeCount}");
 
@@ -226,7 +240,7 @@ namespace Fashion.Service.Authentications
         {
             try
             {
-                var allTeamMembers = await _unitOfWork.Repository<TeamMember>().GetAllAsync();
+                var allTeamMembers = await _context.TeamMembers.ToListAsync();
                 var activeTeamMembers = allTeamMembers.Where(tm => tm.ManagerId == managerId && tm.IsActive).ToList();
 
                 // Log active team members for this manager
@@ -276,7 +290,7 @@ namespace Fashion.Service.Authentications
             try
             {
                 // Get the team member directly by ID with tracking
-                var teamMember = await _unitOfWork.Repository<TeamMember>().GetByIdWithTrackingAsync(teamMemberId);
+                var teamMember = await _context.TeamMembers.FirstOrDefaultAsync(tm => tm.Id == teamMemberId);
                 
                 if (teamMember == null)
                 {
@@ -304,7 +318,7 @@ namespace Fashion.Service.Authentications
                 teamMember.IsActive = false;
                 teamMember.UpdatedAt = DateTime.UtcNow;
                 
-                await _unitOfWork.SaveChangeAsync();
+                await _context.SaveChangesAsync();
 
                 // Log the new state
                 Console.WriteLine($"Team Member ID: {teamMemberId}, New State: غير نشط");
@@ -332,7 +346,7 @@ namespace Fashion.Service.Authentications
             try
             {
                 // Get the team member directly by ID with tracking
-                var teamMember = await _unitOfWork.Repository<TeamMember>().GetByIdWithTrackingAsync(teamMemberId);
+                var teamMember = await _context.TeamMembers.FirstOrDefaultAsync(tm => tm.Id == teamMemberId);
                 
                 if (teamMember == null)
                 {
@@ -360,7 +374,7 @@ namespace Fashion.Service.Authentications
                 teamMember.IsActive = true;
                 teamMember.UpdatedAt = DateTime.UtcNow;
                 
-                await _unitOfWork.SaveChangeAsync();
+                await _context.SaveChangesAsync();
 
                 // Log the new state
                 Console.WriteLine($"Team Member ID: {teamMemberId}, New State: نشط");
@@ -388,7 +402,7 @@ namespace Fashion.Service.Authentications
             try
             {
                 // Get the team member directly by ID with tracking
-                var teamMember = await _unitOfWork.Repository<TeamMember>().GetByIdWithTrackingAsync(teamMemberId);
+                var teamMember = await _context.TeamMembers.FirstOrDefaultAsync(tm => tm.Id == teamMemberId);
                 
                 if (teamMember == null)
                 {
@@ -410,7 +424,7 @@ namespace Fashion.Service.Authentications
                 }
 
                 // Get all team members for validation
-                var allTeamMembers = await _unitOfWork.Repository<TeamMember>().GetAllAsync();
+                var allTeamMembers = await _context.TeamMembers.ToListAsync();
 
                 // Check if phone number already exists with another team member
                 var existingMemberWithPhone = allTeamMembers.FirstOrDefault(tm => 
@@ -450,7 +464,7 @@ namespace Fashion.Service.Authentications
                 teamMember.Department = request.Department;
                 teamMember.UpdatedAt = DateTime.UtcNow;
 
-                await _unitOfWork.SaveChangeAsync();
+                await _context.SaveChangesAsync();
 
                 return new ApiResponse<TeamMemberDto>
                 {
@@ -488,7 +502,7 @@ namespace Fashion.Service.Authentications
             try
             {
                 // Get the team member directly by ID with tracking
-                var teamMember = await _unitOfWork.Repository<TeamMember>().GetByIdWithTrackingAsync(teamMemberId);
+                var teamMember = await _context.TeamMembers.FirstOrDefaultAsync(tm => tm.Id == teamMemberId);
                 
                 if (teamMember == null)
                 {
@@ -510,7 +524,7 @@ namespace Fashion.Service.Authentications
                 }
 
                 // Check if team member has active fitting room requests
-                var fittingRoomRequests = await _unitOfWork.Repository<FittingRoomRequest>().GetAllAsync();
+                var fittingRoomRequests = await _context.FittingRoomRequests.ToListAsync();
                 var hasActiveRequests = fittingRoomRequests.Any(fr => 
                     fr.HandledByStaffId == teamMemberId && 
                     fr.Status == FittingRoomStatus.NewRequest);
@@ -528,7 +542,7 @@ namespace Fashion.Service.Authentications
                 teamMember.IsActive = false;
                 teamMember.UpdatedAt = DateTime.UtcNow;
                 
-                await _unitOfWork.SaveChangeAsync();
+                await _context.SaveChangesAsync();
 
                 return new ApiResponse<bool>
                 {
