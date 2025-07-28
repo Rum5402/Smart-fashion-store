@@ -22,7 +22,7 @@ A comprehensive .NET Core Web API for a fashion e-commerce application with adva
 - **Advanced Search**: Text search across product names, descriptions, and tags
 
 ### 🎨 Mix & Match Functionality
-- **Outfit Suggestions**: AI-powered outfit combinations
+- **Outfit Suggestions**: Smart outfit combinations
 - **Category-based Outfits**: Complete looks by category
 - **Style-based Outfits**: Combinations by style preference
 - **Occasion-based Outfits**: Perfect looks for specific occasions

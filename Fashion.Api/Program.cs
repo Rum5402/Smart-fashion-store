@@ -71,7 +71,7 @@ namespace Fashion.Api
             // Add SignalR
             builder.Services.AddSignalR();
 
-            // Add HttpClient for AI model
+            // Add HttpClient
             builder.Services.AddHttpClient();
 
             // Add Entity Framework
@@ -116,6 +116,9 @@ namespace Fashion.Api
             // Add Memory Cache
             builder.Services.AddMemoryCache();
 
+            // Add Health Checks
+            builder.Services.AddHealthChecks();
+
             // Add HttpContextAccessor for domain-based store identification
             builder.Services.AddHttpContextAccessor();
 
@@ -133,7 +136,6 @@ namespace Fashion.Api
             
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IItemService, ItemService>();
-            builder.Services.AddScoped<IColorDetectionService, ColorDetectionService>();
             builder.Services.AddScoped<IFittingRoomService, FittingRoomService>();
             builder.Services.AddScoped<INotificationService, NotificationService>();
             builder.Services.AddScoped<INotificationHub, NotificationHubService>();
@@ -207,6 +209,9 @@ namespace Fashion.Api
 
             app.MapControllers();
             app.MapHub<NotificationHub>("/notificationHub");
+            
+            // Add health check endpoint
+            app.MapHealthChecks("/health");
 
             app.Run();
         }

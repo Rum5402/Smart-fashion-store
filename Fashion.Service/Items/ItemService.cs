@@ -8,12 +8,10 @@ namespace Fashion.Service.Items
     public class ItemService : IItemService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IColorDetectionService _colorDetectionService;
 
-        public ItemService(IUnitOfWork unitOfWork, IColorDetectionService colorDetectionService)
+        public ItemService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _colorDetectionService = colorDetectionService;
         }
 
         public async Task<List<ItemDto>> GetAllItemsAsync(int storeId)
@@ -102,11 +100,8 @@ namespace Fashion.Service.Items
                 IsActive = true
             };
 
-            // Auto-detect primary color if images are provided
-            if (request.ImageUrls.Any())
-            {
-                item.PrimaryColor = await _colorDetectionService.DetectPrimaryColorAsync(request.ImageUrls.First());
-            }
+            // Primary color is set manually in the request
+            item.PrimaryColor = request.PrimaryColor;
 
             await itemRepository.AddAsync(item);
             await _unitOfWork.SaveChangeAsync();
@@ -144,11 +139,8 @@ namespace Fashion.Service.Items
             item.StoreCategoryId = request.StoreCategoryId;
             item.UpdatedAt = DateTime.UtcNow;
 
-            // Re-detect primary color if images changed
-            if (request.ImageUrls.Any() && request.ImageUrls != JsonSerializer.Deserialize<List<string>>(item.ImageUrls))
-            {
-                item.PrimaryColor = await _colorDetectionService.DetectPrimaryColorAsync(request.ImageUrls.First());
-            }
+            // Update primary color from request
+            item.PrimaryColor = request.PrimaryColor;
 
             // No UpdateAsync, just SaveChangeAsync
             await _unitOfWork.SaveChangeAsync();
@@ -576,7 +568,7 @@ namespace Fashion.Service.Items
         public async Task<List<MixMatchCombinationDto>> GetPersonalizedMixMatchRecommendationsAsync(string? userPreferences)
         {
             // For now, return trending combinations as personalized recommendations
-            // In a real application, this would use user preferences and AI
+            // In a real application, this would use user preferences and recommendation algorithms
             return await GetTrendingMixMatchAsync();
         }
 

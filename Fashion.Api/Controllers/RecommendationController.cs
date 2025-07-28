@@ -10,25 +10,25 @@ namespace Fashion.Api.Controllers
     [Produces("application/json")]
     public class RecommendationController : ControllerBase
     {
-        // TODO: Inject IRecommendationService أو أي Service خاص بالـ AI Model عند توفره
+        // TODO: Inject IRecommendationService when available
 
         /// <summary>
-        /// Get AI recommendation for the current user (Guest or Customer only).
+        /// Get recommendation for the current user (Guest or Customer only).
         /// </summary>
         [HttpPost]
         [AuthorizeRoles("Guest", "Customer")]
         public async Task<IActionResult> GetRecommendation([FromBody] RecommendationRequest request)
         {
-            // TODO: Replace with actual AI model call when available
+            // TODO: Replace with actual recommendation service call when available
             // var result = await _recommendationService.GetRecommendationAsync(request);
             // return Ok(result);
 
-            // Placeholder response until AI integration
-            return Ok(new { Message = "AI recommendation endpoint is ready. Integrate AI model here." });
+            // Placeholder response until recommendation integration
+            return Ok(new { Message = "Recommendation endpoint is ready. Integrate recommendation service here." });
         }
     }
 
-    // DTO for recommendation request (adjust fields as needed for your AI model)
+    // DTO for recommendation request
     public class RecommendationRequest
     {
         public int? Height { get; set; }
@@ -36,6 +36,6 @@ namespace Fashion.Api.Controllers
         public int? Age { get; set; }
         public string? Gender { get; set; }
         public string? SkinTone { get; set; }
-        // أضف أي بيانات أخرى يحتاجها الموديل
+        // Add any other data needed for recommendations
     }
 } 

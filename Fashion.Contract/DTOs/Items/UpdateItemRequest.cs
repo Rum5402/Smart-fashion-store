@@ -52,6 +52,9 @@ namespace Fashion.Contract.DTOs.Items
         [Required]
         public List<string> ImageUrls { get; set; } = new();
         
+        [MaxLength(50)]
+        public string? PrimaryColor { get; set; }
+        
         /// <summary>
         /// Optional product tags/keywords for search and filters
         /// </summary>
