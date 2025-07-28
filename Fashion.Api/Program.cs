@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text;
 
 namespace Fashion.Api
@@ -76,7 +77,16 @@ namespace Fashion.Api
 
             // Add Entity Framework
             builder.Services.AddDbContext<FashionDbContext>(options =>
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            {
+                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    // Fallback for Railway deployment
+                    connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? 
+                                     "Server=localhost;Database=FashionDb;Trusted_Connection=true;TrustServerCertificate=true;";
+                }
+                options.UseSqlServer(connectionString);
+            });
 
             // Add Unit of Work
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -117,7 +127,9 @@ namespace Fashion.Api
             builder.Services.AddMemoryCache();
 
             // Add Health Checks
-            builder.Services.AddHealthChecks();
+            builder.Services.AddHealthChecks()
+                .AddCheck("self", () => HealthCheckResult.Healthy())
+                .AddDbContextCheck<FashionDbContext>("database", tags: new[] { "db" });
 
             // Add HttpContextAccessor for domain-based store identification
             builder.Services.AddHttpContextAccessor();
@@ -210,8 +222,9 @@ namespace Fashion.Api
             app.MapControllers();
             app.MapHub<NotificationHub>("/notificationHub");
             
-            // Add health check endpoint
+            // Add health check endpoints
             app.MapHealthChecks("/health");
+            app.MapGet("/ping", () => Results.Ok(new { Message = "Pong", Timestamp = DateTime.UtcNow }));
 
             app.Run();
         }

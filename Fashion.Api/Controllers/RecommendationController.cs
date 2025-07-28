@@ -17,7 +17,7 @@ namespace Fashion.Api.Controllers
         /// </summary>
         [HttpPost]
         [AuthorizeRoles("Guest", "Customer")]
-        public async Task<IActionResult> GetRecommendation([FromBody] RecommendationRequest request)
+        public IActionResult GetRecommendation([FromBody] RecommendationRequest request)
         {
             // TODO: Replace with actual recommendation service call when available
             // var result = await _recommendationService.GetRecommendationAsync(request);

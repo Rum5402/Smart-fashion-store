@@ -303,15 +303,15 @@ namespace Fashion.Service.Store
             }
             return new StoreLocationDto
             {
-                LocationName = settings.LocationName,
-                Address = settings.StoreAddress,
-                City = settings.City,
-                Country = settings.Country,
-                PostalCode = settings.PostalCode,
+                LocationName = settings.LocationName ?? "",
+                Address = settings.StoreAddress ?? "",
+                City = settings.City ?? "",
+                Country = settings.Country ?? "",
+                PostalCode = settings.PostalCode ?? "",
                 Latitude = settings.Latitude,
                 Longitude = settings.Longitude,
-                Floor = settings.Floor,
-                MallName = settings.MallName
+                Floor = settings.Floor ?? "",
+                MallName = settings.MallName ?? ""
             };
         }
 
@@ -333,11 +333,11 @@ namespace Fashion.Service.Store
             }
             return new StoreContactDto
             {
-                PhoneNumber = settings.PhoneNumber,
-                SecondaryPhoneNumber = settings.SecondaryPhoneNumber,
-                Email = settings.ContactEmail,
-                WhatsAppNumber = settings.WhatsAppNumber,
-                Website = settings.Website,
+                PhoneNumber = settings.PhoneNumber ?? "",
+                SecondaryPhoneNumber = settings.SecondaryPhoneNumber ?? "",
+                Email = settings.ContactEmail ?? "",
+                WhatsAppNumber = settings.WhatsAppNumber ?? "",
+                Website = settings.Website ?? "",
                 SocialMediaLinks = socialMedia
             };
         }
